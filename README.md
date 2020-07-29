@@ -47,6 +47,13 @@ node不是我的专业语言，很多功能都是一边查文档一边看别人�
 
 原gitee地址：[https://gitee.com/saki/live-plus](https://gitee.com/saki/live-plus)，目前已经转到了github，原地址不会再更新了。
 
+目前预留未开发的功能：
+
+1. 应用的检查更新
+2. 清晰度切换
+3. 多线路切换
+4. 弹幕发送，需要绑定账号
+
 ---
 
 ## License
