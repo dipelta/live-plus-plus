@@ -43,6 +43,12 @@ node不是我的专业语言，很多功能都是一边查文档一边看别人�
 
 ---
 
+## 其他
+
+原gitee地址：[https://gitee.com/saki/live-plus](https://gitee.com/saki/live-plus)，目前已经转到了github，原地址不会再更新了。
+
+---
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
