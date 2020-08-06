@@ -1,6 +1,7 @@
-<div align="center"><img src="https://image.dipelta.cn//doc/icon_256x256.png" alt="icon_256x256" style="zoom:80%;" /></center>
+<div align="center"><img src="readme/logo.png" alt="icon_256x256" style="zoom:80%;" /></center>
 <center><h1>Live++</h1><p>轻轻松松看直播</p>
     </div>
+
 
 ---
 
@@ -39,7 +40,7 @@ node不是我的专业语言，很多功能都是一边查文档一边看别人�
 
 ## 程序截图
 
-<img src="https://image.dipelta.cn//doc/image-20200729213222712.png" alt="image-20200729213222712" style="zoom:50%;" />
+<img src="readme/eg1.png" alt="image-20200729213222712" style="zoom:50%;" />
 
 ---
 
