@@ -59,6 +59,6 @@ node不是我的专业语言，很多功能都是一边查文档一边看别人�
 
 ## License
 
-[MIT](http://opensource.org/licenses/MIT)
+[MIT](LICENSE)
 
 Copyright (c) 2020 Jinda Li
