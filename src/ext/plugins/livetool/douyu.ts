@@ -264,7 +264,7 @@ class Douyu {
               // console.log(result.data)
               if (realUrl && realUrl[0] && realUrl[1]) {
                 // console.log('http end')
-                res = 'http://tx2play1.douyucdn.cn/live/' + realUrl[1] + '_4000.flv?uuid='
+                res = 'http://tx2play1.douyucdn.cn/live/' + realUrl[1] + '.flv?uuid='
                 resolve(res)
               } else {
                 console.log('没有匹配到直播地址')
@@ -274,7 +274,7 @@ class Douyu {
                 const realUrl2 = regx2.exec(url)
                 if (realUrl2 && realUrl2[0] && realUrl2[1]) {
                   console.log(realUrl2)
-                  res = 'http://tx2play1.douyucdn.cn/live/' + realUrl2[1] + '_4000.flv?uuid='
+                  res = 'http://tx2play1.douyucdn.cn/live/' + realUrl2[1] + '.flv?uuid='
                   resolve(res)
                 } else {
                   resolve(false)
