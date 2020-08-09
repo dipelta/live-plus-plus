@@ -36,6 +36,17 @@ node不是我的专业语言，很多功能都是一边查文档一边看别人�
 
 目前仅调试了windows、macOS系统下的程序运行问题。Linux平台请自行测试。
 
+```shell script
+# 安装依赖
+npm install
+
+# 开发运行命令
+npm run dev
+
+# 编译命令
+npm run build
+```
+
 ---
 
 ## 程序截图
