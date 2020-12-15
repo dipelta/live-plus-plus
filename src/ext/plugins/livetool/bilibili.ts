@@ -40,6 +40,7 @@ class Bilibili {
           }
           resolve(data)
         })
+      }).on('error', function (e) {
       })
     })
   }
@@ -112,6 +113,7 @@ class Bilibili {
             resolve(false)
           }
         })
+      }).on('error', function (e) {
       })
     })
   }
@@ -146,6 +148,7 @@ class Bilibili {
             resolve(false)
           }
         })
+      }).on('error', function (e) {
       })
     })
   }

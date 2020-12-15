@@ -48,6 +48,7 @@ class Douyu {
             return null
           }
         })
+      }).on('error', function (e) {
       })
     })
   }
@@ -82,6 +83,7 @@ class Douyu {
         } catch (e) {
           reject(e)
         }
+      }).on('error', function (e) {
       })
     })
   }
@@ -186,6 +188,7 @@ class Douyu {
               }
             })
           }
+        }).on('error', function (e) {
         })
       } catch (e) {
         reject(e)
@@ -284,6 +287,7 @@ class Douyu {
               resolve(false)
             }
           })
+        }).on('error', function (e) {
         })
         req.write(postData)
         req.end()
@@ -336,6 +340,7 @@ class Douyu {
             resolve(false)
           }
         })
+      }).on('error', function (e) {
       })
     })
   }

@@ -52,6 +52,7 @@ class Huya {
           }
           resolve(data)
         })
+      }).on('error', function (e) {
       })
     })
   }
@@ -131,6 +132,7 @@ class Huya {
             }
           })
         }
+      }).on('error', function (e) {
       })
     })
   }
@@ -177,6 +179,7 @@ class Huya {
             resolve(false)
           }
         })
+      }).on('error', function (e) {
       })
     })
   }
