@@ -2,7 +2,7 @@
   <v-system-bar fixed id="sys-bar" color="grey-darken-3" :class="systemPlatfromClass + ' ' + showStatus">
     <VideoSystemBtn/>
     <v-spacer></v-spacer>
-    <span style="">{{ roomName }}</span>
+    <span :class="systemPlatfromClass">{{ roomName }}</span>
     <v-spacer></v-spacer>
   </v-system-bar>
 </template>

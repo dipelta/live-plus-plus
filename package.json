@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && electron-builder",
+    "build:win": "vite build && electron-builder -w",
+    "build:mac": "vite build && electron-builder -m",
+    "build:linux": "vite build && electron-builder -l",
     "serve": "vite preview",
     "build:vite": "vite build",
     "preview": "vite preview"
