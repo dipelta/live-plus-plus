@@ -8,9 +8,9 @@ export class ApiResponse {
 
 class Api {
 
-  // private baseURL = 'http://api.live.dipelta.cn/'
+  private baseURL = 'http://api.live.dipelta.cn/'
 
-  private baseURL = 'http://api.live.me/'
+  // private baseURL = 'http://api.live.me/'
 
   private http() {
     return axios.create({

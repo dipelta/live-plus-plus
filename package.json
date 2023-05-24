@@ -5,10 +5,10 @@
   "description": "live++",
   "author": "dipelta <zha_zha@outlook.com>",
   "scripts": {
-    "serve": "vite preview",
-    "build": "vite build",
-    "build:mac": "vite build && electron-builder",
     "dev": "vite",
+    "build": "vite build && electron-builder",
+    "serve": "vite preview",
+    "build:vite": "vite build",
     "preview": "vite preview"
   },
   "main": "dist-electron/main/index.js",
@@ -76,6 +76,29 @@
       "dist-electron",
       "dist"
     ],
+    "win": {
+      "icon": "build/win/logo.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/win/logo.ico",
+      "uninstallerIcon": "build/win/logo.ico",
+      "installerHeaderIcon": "build/win/logo.ico",
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "shortcutName": "live++"
+    },
     "mac": {
       "category": "public.app-category.entertainment",
       "target": "dmg",
