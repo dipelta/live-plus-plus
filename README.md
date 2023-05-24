@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://image.dipelta.cn/doc/202305241648817.png" alt="logo" style="zoom:25%;" />
+<img src="build/readme_img/logo.png" alt="logo" style="zoom:25%;" />
 </p>
 
 <h2 align="center">Live++</h2>
@@ -54,7 +54,7 @@ $ npm -v
 
 ## 程序截图
 
-<img src="https://image.dipelta.cn/doc/202305241712726.png" alt="image-20230524171239695" style="zoom:50%;" />
+<img src="build/readme_img/11.png" alt="image-20230524171239695" style="zoom:50%;" />
 
-<img src="https://image.dipelta.cn/doc/202305241714340.png" alt="image-20230524171417276" style="zoom:50%;" />
+<img src="build/readme_img/22.png" alt="image-20230524171417276" style="zoom:50%;" />
 
