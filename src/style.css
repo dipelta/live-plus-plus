@@ -1,0 +1,84 @@
+#live-platform .v-btn__overlay, .v-btn__underlay {
+  display: none !important;
+}
+
+.addLiveBtn .v-btn__overlay {
+  display: none !important;
+}
+
+.v-btn__overlay {
+  display: none !important;
+}
+
+.platform-content {
+  overflow-y: scroll;
+  position: fixed;
+  top: 96px;
+  width: 100%;
+  box-shadow: inset 0 0 0 1px #0000001f;
+  height: 404px;
+  border-radius: 0 0 5px 5px;
+}
+
+
+/*滚动条整体样式*/
+.app-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+
+/*滚动条的小方块*/
+.app-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+  box-shadow: none;
+  background: #ff8a65;
+}
+
+/*滚动条里面轨道*/
+.app-scrollbar::-webkit-scrollbar-track {
+  box-shadow: none;
+  border-radius: 0;
+  background: none;
+}
+
+
+#video-ctrl-bar .v-slider.v-input--horizontal .v-slider-track {
+  height: 3px !important;
+}
+
+#video-ctrl-bar .v-slider-thumb__surface {
+  width: 12px;
+  height: 12px;
+}
+
+#video-ctrl-bar .v-slider-thumb__ripple {
+  display: none;
+}
+
+#video-ctrl-bar .v-slider-thumb__surface::before {
+  opacity: 0 !important;
+}
+
+
+#video-ctrl-bar .v-slider-thumb:hover:not(.v-slider-thumb--focused) .v-slider-thumb__surface::before {
+  opacity: 0 !important;
+}
+
+#video-ctrl-bar .v-btn__overlay {
+  display: none !important;
+}
+
+#video-ctrl-bar .v-btn__overlay, .v-btn__underlay {
+  display: none !important;
+}
+
+#settingGroup .v-field__outline .v-label {
+  opacity: 1 !important;
+  color: #d3765a !important;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 22px;
+  height: 22px;
+  transform: translateY(-18px) scale(.75);
+}
+
+
