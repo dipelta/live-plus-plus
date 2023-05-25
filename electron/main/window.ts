@@ -48,6 +48,7 @@ class Window {
 
     mainWindow.on('ready-to-show', () => {
       mainWindow.show()
+      mainWindow.webContents.openDevTools()
     })
 
     mainWindow.on('close', (event: Event) => {
@@ -66,6 +67,7 @@ class Window {
     this.windowMap.set(this.VIDEO_WINDOW_NAME, videoWindow)
     if (process.env.VITE_DEV_SERVER_URL) {
       videoWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#/video?platform=' + platformTab + "&room_id=" + roomId)
+      videoWindow.webContents.openDevTools()
     } else {
       videoWindow.loadFile('./dist/index.html', {
         hash: '#/video?platform=' + platformTab + "&room_id=" + roomId

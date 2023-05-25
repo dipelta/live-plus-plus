@@ -1,6 +1,8 @@
 <template>
   <v-bottom-navigation :active="openAddLiveStatus" height="404px" :multiple="true" selected-class="followLiveBtn">
-    <div id="add-live" style="width: 300px;height: 404px;" class="app-scrollbar">
+    <div id="add-live" class="app-scrollbar"
+         style=""
+    >
       <v-window :model-value="platformTab">
         <v-window-item v-for="(item, tabIndex) in livePlatformItems" :key="tabIndex" :value="tabIndex">
           <v-sheet max-height="364px" class="app-scrollbar" style="padding:0;margin:0;width:300px;overflow-y: scroll;">
@@ -132,6 +134,13 @@ export default defineComponent({
 
 </script>
 <style scoped>
+#add-live {
+  width: 300px;
+  height: 404px;
+  border-left: 1px #0000001f solid;
+  border-right: 1px #0000001f solid;
+}
+
 .followLiveBtn {
   opacity: 1 !important;
   color: #2E7D32;

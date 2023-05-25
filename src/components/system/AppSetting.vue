@@ -1,7 +1,6 @@
 <template>
   <v-bottom-navigation :active="openSettingStatus" height="440px" :multiple="true">
-    <div id="app-setting" style="width: 300px;height: 440px;" class="app-scrollbar">
-
+    <div id="app-setting" class="app-scrollbar">
       <v-row align="center" style="padding: 20px" id="emailGroup">
         <h2 style=";margin-left: 12px">绑定设置
           <span style="font-size: 12px;font-weight:400;margin-left: 5px">({{ bindEmail }})</span>
@@ -311,5 +310,11 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-
+#app-setting {
+  width: 300px;
+  height: 440px;
+  border-left: 1px #0000001f solid;
+  border-right: 1px #0000001f solid;
+  border-bottom: 1px #0000001f solid;
+}
 </style>
