@@ -13,10 +13,24 @@ class Api {
   // private baseURL = 'http://api.live.me/'
 
   private http() {
-    return axios.create({
+    let http = axios.create({
       baseURL: this.baseURL,
       timeout: 5000,
     })
+    http.interceptors.response.use(function (response) {
+      // 对响应数据做点什么
+      return response;
+    }, function (error) {
+      // 对响应错误做点什么
+      if(error.message.includes('timeout')){   // 判断请求异常信息中是否含有超时timeout字符串
+        // console.log("错误回调", error);
+        // alert("网络超时");
+        error.code = 5001
+        error.msg = "网络超时"
+      }
+      return Promise.reject(error);
+    });
+    return http
   }
 
   public getPlatformType(platformTab: number) {
@@ -30,7 +44,7 @@ class Api {
     }
   }
 
-  public getPlatformTab(platformType: number) {
+  public getPlatformTab(platformType: string) {
     switch (platformType) {
       case 'douyu':
         return 0;
@@ -46,9 +60,14 @@ class Api {
     await this.http().get(url).then(function (response) {
       result = response.data
     }).catch(function (error) {
-      result.code = 502
-      console.log('请求出错')
       console.log(error)
+      console.log(error.code)
+      console.log(error.msg)
+      console.log(error.message)
+      result = new ApiResponse()
+      result.code = error.code
+      result.msg = error.msg ? error.msg : error.message
+      result.data = []
     })
     return result
   }

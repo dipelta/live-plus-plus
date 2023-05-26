@@ -1,8 +1,6 @@
 <template>
-  <v-bottom-navigation :active="openAddLiveStatus" height="404px" :multiple="true" selected-class="followLiveBtn">
-    <div id="add-live" class="app-scrollbar"
-         style=""
-    >
+  <v-bottom-navigation style="border-radius: 0 0 5px 5px;box-shadow:none" :active="openAddLiveStatus" height="404px" :multiple="true" selected-class="followLiveBtn">
+    <div id="add-live" class="app-scrollbar">
       <v-window :model-value="platformTab">
         <v-window-item v-for="(item, tabIndex) in livePlatformItems" :key="tabIndex" :value="tabIndex">
           <v-sheet max-height="364px" class="app-scrollbar" style="padding:0;margin:0;width:300px;overflow-y: scroll;">
@@ -36,7 +34,7 @@
         </v-window-item>
       </v-window>
     </div>
-    <v-sheet color="grey-darken-3" style="position: fixed; bottom: 0; width: 100%">
+    <v-sheet color="grey-darken-3" style="position: fixed; bottom: 0; width: 100%;  border-radius: 0 0 5px 5px;">
       <v-text-field
           v-model="searchKeyWord"
           :loading="searchLoading"
@@ -80,17 +78,23 @@ export default defineComponent({
         this.searchLoading = true
         const data = await api.search(this.platformTab, this.searchKeyWord)
         this.searchLoading = false
-        const searchResult = data.data
-        const follows = await ipcRenderer.invoke('get-follow-by-platform', [this.platformTab])
-        // console.log(follows)
-        for (let i = 0; i < searchResult.length; i++) {
-          searchResult[i].follow = 0
-          if (follows.indexOf(searchResult[i].room_id) !== -1) {
-            searchResult[i].follow = 1
+        console.log(data)
+        if (data.code !== 200) {
+          ipcRenderer.send('alert-msg', ['error', data.msg])
+
+        } else {
+          const searchResult = data.data
+          const follows = await ipcRenderer.invoke('get-follow-by-platform', [this.platformTab])
+          // console.log(follows)
+          for (let i = 0; i < searchResult.length; i++) {
+            searchResult[i].follow = 0
+            if (follows.indexOf(searchResult[i].room_id) !== -1) {
+              searchResult[i].follow = 1
+            }
           }
+          console.log(searchResult)
+          this.searchDataMap[this.platformTab] = searchResult
         }
-        console.log(searchResult)
-        this.searchDataMap[this.platformTab] = searchResult
       }
     },
     addLiveUser(roomId) {
@@ -139,6 +143,7 @@ export default defineComponent({
   height: 404px;
   border-left: 1px #0000001f solid;
   border-right: 1px #0000001f solid;
+  border-radius: 0 0 5px 5px;
 }
 
 .followLiveBtn {

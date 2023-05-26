@@ -1,5 +1,5 @@
 <template>
-  <v-bottom-navigation :active="openSettingStatus" height="440px" :multiple="true">
+  <v-bottom-navigation style="border-radius: 0 0 5px 5px;box-shadow:none" :active="openSettingStatus" height="440px" :multiple="true">
     <div id="app-setting" class="app-scrollbar">
       <v-row align="center" style="padding: 20px" id="emailGroup">
         <h2 style=";margin-left: 12px">绑定设置
@@ -316,5 +316,6 @@ export default defineComponent({
   border-left: 1px #0000001f solid;
   border-right: 1px #0000001f solid;
   border-bottom: 1px #0000001f solid;
+  border-radius: 0 0 5px 5px;
 }
 </style>

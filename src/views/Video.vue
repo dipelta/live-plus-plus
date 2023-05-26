@@ -1,11 +1,11 @@
 <template>
   <v-container>
-    <div id="video-container">
+    <div id="video-container" style="border-radius: 5px">
       <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName"/>
       <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku"
                    speeds="100" :extraStyle="extraStyle" fontSize="20">
       </vue-danmaku>
-      <video id="live-player" class="video-js"></video>
+      <video id="live-player" class="video-js" style="border-radius: 5px"></video>
       <v-container id="video-ctrl-bar" style="text-align: center" :class="videoShowClass">
         <v-row align="center" justify="space-around">
           <v-col>

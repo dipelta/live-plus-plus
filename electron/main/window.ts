@@ -18,6 +18,10 @@ class Window {
 
   private mouseY = 0
 
+  private videoWidth = 0
+
+  private videoHeight = 0
+
   private canMove = false
 
   private inSystemBar = false
@@ -48,7 +52,7 @@ class Window {
 
     mainWindow.on('ready-to-show', () => {
       mainWindow.show()
-      mainWindow.webContents.openDevTools()
+      // mainWindow.webContents.openDevTools()
     })
 
     mainWindow.on('close', (event: Event) => {
@@ -63,11 +67,13 @@ class Window {
 
   createVideoWindow(platformTab, roomId) {
     console.log('创建video窗口')
-    const videoWindow = new BrowserWindow(videoConfig.getWindowConf())
+    const videoConf = videoConfig.getWindowConf()
+    const videoWindow = new BrowserWindow(videoConf)
+    this.videoWidth = videoConf.width
+    this.videoHeight = videoConf.height
     this.windowMap.set(this.VIDEO_WINDOW_NAME, videoWindow)
     if (process.env.VITE_DEV_SERVER_URL) {
       videoWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#/video?platform=' + platformTab + "&room_id=" + roomId)
-      videoWindow.webContents.openDevTools()
     } else {
       videoWindow.loadFile('./dist/index.html', {
         hash: '#/video?platform=' + platformTab + "&room_id=" + roomId
@@ -88,6 +94,7 @@ class Window {
     }, 1000)
     videoWindow.on('ready-to-show', () => {
       videoWindow.show()
+      // videoWindow.webContents.openDevTools()
     })
     videoWindow.on('close', (event: Event) => {
       if (this.isHasWindow(this.VIDEO_WINDOW_NAME)) {
@@ -106,6 +113,21 @@ class Window {
     videoWindow.on("blur", (event: Event) => {
       videoWindow.webContents.send('mouse-leave-video-window', [])
     })
+    videoWindow.on("will-resize", (event: Event) => {
+      // console.log("will-resize:" + videoWindow.getSize())
+      // console.log("this.canMove:" + this.canMove)
+      if (this.canMove) {
+        event.preventDefault()
+      }
+    })
+    videoWindow.on("resize", (event: Event) => {
+      // console.log("resize:" + videoWindow.getSize())
+      if (this.canMove) {
+      } else {
+        this.videoWidth = videoWindow.getSize()[0]
+        this.videoHeight = videoWindow.getSize()[1]
+      }
+    })
     videoWindow.webContents.on("input-event", (event, input) => {
       if (videoWindow.isFocused()) {
         const {x, y} = screen.getCursorScreenPoint()
@@ -113,6 +135,8 @@ class Window {
         this.mouseY = y
         const bounds = videoWindow.getBounds()
         // console.log(input, x, y, bounds);
+        // console.log(x, y, bounds);
+        // console.log(videoWindow.getPosition());
         if (input.type === 'mouseLeave') {
           videoWindow.webContents.send('mouse-leave-video-window', [])
         } else if (input.type === 'mouseDown') {
@@ -131,6 +155,7 @@ class Window {
           }
         } else if (input.type === 'mouseUp') {
           this.canMove = false
+          // videoWindow.setResizable(true)
         } else if (input.type === 'mouseMove') {
           videoWindow.webContents.send('mouse-on-video-window', [])
           if (y >= bounds.y && y <= bounds.y + 24) {
@@ -141,9 +166,12 @@ class Window {
           }
           if (input.modifiers[0] === 'leftbuttondown') {
             if (this.canMove) {
+              // videoWindow.setResizable(false)
               const newX = x - this.mouseInWinX
               const newY = y - this.mouseInWinY
               videoWindow.setPosition(newX, newY)
+              videoWindow.setSize(this.videoWidth, this.videoHeight)
+              // videoWindow.setBounds({ x:newX, y: newY, width: this.videoWidth, height: this.videoHeight })
             }
           }
         }

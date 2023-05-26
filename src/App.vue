@@ -68,5 +68,6 @@ export default defineComponent({
   max-width: 100%;
   max-height: 100%;
   border-radius: 5px;
+  //box-shadow: inset 0 0 0 1px #0000001f;
 }
 </style>
