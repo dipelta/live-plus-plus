@@ -185,6 +185,12 @@ class MainEvent {
       return data
     })
 
+    ipcMain.handle('get-multi-room-info', async function (event: IpcMainEvent, args: any[]) {
+      const platformTab = args[0]
+      const roomId = args[1]
+      return await api.multiRoomInfo(platformTab, roomId) as apiResponse
+    })
+
     /**
      * 打开直播窗口
      */

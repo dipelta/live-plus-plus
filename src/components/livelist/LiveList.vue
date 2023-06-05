@@ -142,29 +142,17 @@ export default defineComponent({
     },
     reflushLiveList() {
       const self = this
-      let douyuDatas = []
-      let bilibiliDatas = []
-      let huyaDatas = []
       ipcRenderer.invoke('get-all-follow', []).then(function (follows) {
-        ipcRenderer.invoke('get-room-info', [0, follows.douyu]).then(function (data) {
-          for (let i = 0; i < data.length; i++) {
-            douyuDatas.push(data[i])
-          }
-          self.liveList[0] = douyuDatas
+        ipcRenderer.invoke('get-multi-room-info', [0, follows.douyu]).then(function (data) {
+          self.liveList[0] = data
         })
-        ipcRenderer.invoke('get-room-info', [1, follows.bilibili]).then(function (data) {
-          for (let i = 0; i < data.length; i++) {
-            bilibiliDatas.push(data[i])
-          }
-          self.liveList[1] = bilibiliDatas
+        ipcRenderer.invoke('get-multi-room-info', [1, follows.bilibili]).then(function (data) {
+          self.liveList[1] = data
         })
-        ipcRenderer.invoke('get-room-info', [2, follows.huya]).then(function (data) {
-          for (let i = 0; i < data.length; i++) {
-            huyaDatas.push(data[i])
-          }
-          self.liveList[2] = huyaDatas
-          ipcRenderer.send('reflush-live-list-over', [])
+        ipcRenderer.invoke('get-multi-room-info', [2, follows.huya]).then(function (data) {
+          self.liveList[2] = data
         })
+        ipcRenderer.send('reflush-live-list-over', [])
       })
     }
   },

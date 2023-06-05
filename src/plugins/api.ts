@@ -22,7 +22,7 @@ class Api {
       return response;
     }, function (error) {
       // 对响应错误做点什么
-      if(error.message.includes('timeout')){   // 判断请求异常信息中是否含有超时timeout字符串
+      if (error.message.includes('timeout')) {   // 判断请求异常信息中是否含有超时timeout字符串
         // console.log("错误回调", error);
         // alert("网络超时");
         error.code = 5001
@@ -194,6 +194,33 @@ class Api {
       }
     })
     return datas
+  }
+
+  public async multiRoomInfo(platformTab, roomIdArr) {
+    const platformType = this.getPlatformType(platformTab)
+    const roomIds = roomIdArr.join(";")
+    const url = this.baseURL + "anchor/multi-data?room_id=" + roomIds + "&platform_type=" + platformType
+    let response = await this.sendGet(url);
+    // 对结果进行排序
+    if (response.code === 200 ) {
+      let datas = response.data
+      datas.sort(function (a, b) {
+        if (a.is_live === b.is_live) {
+          if (a.is_live === 0) {
+            return 0
+          }
+          if (a.is_loop === b.is_loop) {
+            return a.watch_num > b.watch_num ? -1 : 1
+          } else {
+            return a.is_loop > b.is_loop ? 1 : -1
+          }
+        } else {
+          return a.is_live > b.is_live ? -1 : 1
+        }
+      })
+      return datas
+    }
+    return [];
   }
 
   /**
