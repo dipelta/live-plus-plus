@@ -49,6 +49,7 @@
           color="deep-orange-accent-2"
           bg-color="grey-darken-3"
           @click:append-inner="search"
+          @keydown.enter="search"
       ></v-text-field>
     </v-sheet>
   </v-bottom-navigation>
@@ -78,7 +79,6 @@ export default defineComponent({
         this.searchLoading = true
         const data = await api.search(this.platformTab, this.searchKeyWord)
         this.searchLoading = false
-        console.log(data)
         if (data.code !== 200) {
           ipcRenderer.send('alert-msg', ['error', data.msg])
 
