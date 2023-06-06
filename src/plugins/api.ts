@@ -8,7 +8,7 @@ export class ApiResponse {
 
 class Api {
 
-  private baseURL = 'http://api.live.dipelta.cn/'
+  private baseURL = 'https://api.live.dipelta.cn/'
 
   // private baseURL = 'http://api.live.me/'
 

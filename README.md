@@ -65,7 +65,7 @@ $ npm -v
 
 使用中的问题、对产品功能的畅想等等都可以通过Issues、telegram、发送邮件的方式联系我，欢迎更多的朋友能够参与进来
 
-telegram群主分享链接：https://t.me/+BjFbK97ZVxMxZmM1
+telegram群组分享链接：https://t.me/+BjFbK97ZVxMxZmM1
 
 ---
 

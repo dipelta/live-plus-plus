@@ -1,6 +1,6 @@
 {
   "name": "live-plus-plus",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "live++",
   "author": "dipelta <zha_zha@outlook.com>",
@@ -40,6 +40,8 @@
     "@vitejs/plugin-vue": "^4.1.0",
     "electron": "^24.1.3",
     "electron-builder": "^23.6.0",
+    "electron-updater": "^6.1.0",
+    "electron-log": "^4.4.8",
     "electron-devtools-installer": "^3.1.0",
     "md5": "^2.2.1",
     "to-arraybuffer": "^1.0.1",
@@ -60,11 +62,8 @@
     }
   },
   "keywords": [
-    "electron",
-    "rollup",
-    "vite",
-    "vue3",
-    "vue"
+    "live++",
+    "live_plus_plus"
   ],
   "build": {
     "appId": "cn.dipelta.live.plus.plus",
@@ -78,6 +77,12 @@
     "files": [
       "dist-electron",
       "dist"
+    ],
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://api.live.dipelta.cn/app_releases/"
+      }
     ],
     "win": {
       "icon": "build/win/logo.ico",
@@ -102,9 +107,17 @@
       "shortcutName": "live++"
     },
     "mac": {
+      "title": "live++",
       "category": "public.app-category.entertainment",
-      "target": "dmg",
+      "target": ["dmg", "zip"],
       "icon": "build/mac/Icon.icns"
+    },
+    "linux": {
+      "target": {
+        "target": "AppImage",
+        "arch": ["x64"]
+      },
+      "icon": "build/linux/logo_256x256.png"
     }
   },
   "license": "MIT"

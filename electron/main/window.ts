@@ -127,6 +127,7 @@ class Window {
         this.videoWidth = videoWindow.getSize()[0]
         this.videoHeight = videoWindow.getSize()[1]
       }
+      videoWindow.webContents.send('video-window-resize', [])
     })
     videoWindow.webContents.on("input-event", (event, input) => {
       if (videoWindow.isFocused()) {

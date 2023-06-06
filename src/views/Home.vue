@@ -58,7 +58,12 @@ export default defineComponent({
     }
   },
   mounted() {
-    console.log('home page')
+
+    // 检查更新
+    ipcRenderer.send('check-update', [])
+    ipcRenderer.on('app-need-to-update', (event, args) => {
+      console.log('发现了新版本')
+    })
 
     ipcRenderer.on('reflush-live-list-reply', (event, args) => {
       this.reflushLoading = true

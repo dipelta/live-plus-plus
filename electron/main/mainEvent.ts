@@ -1,12 +1,61 @@
-import {app, ipcMain, screen, clipboard} from 'electron'
+import {app, ipcMain, screen, clipboard, dialog} from 'electron'
 import window from "./window";
 import db from "../../src/plugins/db";
 import {api, apiResponse} from "../../src/plugins/api";
 import IpcMainEvent = Electron.IpcMainEvent;
+import {autoUpdater} from "electron-updater";
+import {log} from "electron-log";
 
 class MainEvent {
 
   register() {
+
+    autoUpdater.on('error', (err) => {
+      log('error: ' + err)
+    })
+    autoUpdater.on('update-available', (info) => {
+      log('发现了新的版本：')
+      log(info)
+    })
+    autoUpdater.on('checking-for-update', () => {
+      log("checking-for-update")
+    })
+    autoUpdater.on('update-not-available', (res) => {
+      log("没有可更新版本:")
+      log(res)
+    })
+
+    //监听'update-downloaded'事件，新版本下载完成时触发
+    autoUpdater.on('update-downloaded', () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: '应用更新',
+        message: 'Live++发现新版本，是否更新？',
+        buttons: ['是', '否']
+      }).then((buttonIndex) => {
+        if (buttonIndex.response == 0) {  //选择是，则退出程序，安装新版本
+          autoUpdater.quitAndInstall()
+          app.quit()
+        }
+      })
+    })
+
+    ipcMain.on('check-update', function (event: IpcMainEvent, args: any[]) {
+      console.log('ipcMain - check-update')
+      if (process.platform === 'darwin') {
+        // macos
+        autoUpdater.setFeedURL('https://api.live.dipelta.cn/app_releases/darwin')
+      } else if (process.platform === 'win32') {
+        // windows
+        autoUpdater.setFeedURL('https://api.live.dipelta.cn/app_releases/win32')
+      } else if (process.platform === 'linux') {
+        // linux
+        autoUpdater.setFeedURL('https://api.live.dipelta.cn/app_releases/linux')
+      } else {
+        return false
+      }
+      autoUpdater.checkForUpdates()
+    })
 
     /**
      * 关闭窗口
@@ -17,7 +66,6 @@ class MainEvent {
       if (windowName == window.MAIN_WINDOW_NAME) {
         // 读取配置
         const main_window_close_event = db.getAppConfig('main_window_close_event')
-        console.log(main_window_close_event)
         if (main_window_close_event === 0) {
           win.minimize()
         } else {
@@ -61,10 +109,8 @@ class MainEvent {
       const code = args[1]
       const response = await api.bindEmail(clientCode, email, code)
       if (response.code === 200) {
-        console.log(response)
         // 绑定成功后，如果是新用户
         if (response.data.new_user) {
-          console.log('new user')
           // 1.将本地的关注数据同步到服务器中
           const follows = db.getAllPlatformFollows()
           api.syncFollowsUpload(clientCode, follows)
@@ -72,7 +118,6 @@ class MainEvent {
           const app_configs = db.getAppConfig()
           api.syncAppConfigUpload(clientCode, app_configs)
         } else {
-          console.log('old user')
           // 否则将线上的数据同步到本地
           db.syncFollow(clientCode)
           db.syncAppConfig(clientCode)

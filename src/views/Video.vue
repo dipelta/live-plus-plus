@@ -60,7 +60,14 @@ export default defineComponent({
     togglePlay() {
       if (this.player.paused()) { // true 直播没有播放
         this.videoPlayIcon = 'mdi-pause'
-        this.player.play()
+        // 再次播放时的动作根据配置进行，0-继续播放，1-更新到最近进度
+        if (this.videoReplayEventConfig === 0) {
+          this.player.play()
+        } else {
+          const platformTab = parseInt(tool.urlGetParams('platform'))
+          const roomId = parseInt(tool.urlGetParams('room_id'))
+          this.reflushRoomInfo(platformTab, roomId)
+        }
       } else {
         this.videoPlayIcon = 'mdi-play'
         this.player.pause()
@@ -71,10 +78,12 @@ export default defineComponent({
         // 隐藏弹幕
         this.$refs.danmakuRef.hide()
         this.danmakuBtnColor = "white"
+        sessionStorage.setItem('auto_show_danmaku', "0")
       } else {
         // 显示弹幕
         this.$refs.danmakuRef.show()
         this.danmakuBtnColor = "deep-orange-lighten-2"
+        sessionStorage.setItem('auto_show_danmaku', "1")
       }
       this.showDanmaku = !this.showDanmaku
     },
@@ -178,6 +187,24 @@ export default defineComponent({
   mounted() {
     console.log(window.location.href)
     const self = this
+
+    // 读取播放器弹幕开启设置、继续播放设置
+    ipcRenderer.invoke('get-app-config', []).then((appConfig) => {
+      self.showDanmakuConfig = appConfig.auto_show_danmaku
+      self.videoReplayEventConfig = appConfig.video_replay_event
+
+      // 从sessionStorage中获取当前弹幕的开关状态
+      let sessionShowDanmakuConfig = sessionStorage.getItem('auto_show_danmaku')
+      if (!sessionShowDanmakuConfig) {
+        // 如果sessionStorage中不存在，则将用户的配置放入
+        sessionStorage.setItem('auto_show_danmaku', self.showDanmakuConfig.toString())
+        sessionShowDanmakuConfig = self.showDanmakuConfig.toString()
+      }
+      //修改当前的弹幕播放状态
+      self.showDanmaku = sessionShowDanmakuConfig !== "1"
+      self.toggleDanmaku()
+    })
+
     this.makeDefaultDanmakuColorStyle()
     this.playerOptions = {
       bigPlayButton: false,
@@ -204,11 +231,14 @@ export default defineComponent({
 
     ipcRenderer.on('change-video-info', (event, args) => {
       if (platformTab !== parseInt(args[1]) || roomId !== parseInt(args[2])) {
+        const newplatformTab = parseInt(args[1])
+        const newRoomId = parseInt(args[2])
         this.$router.push({path: '/video', query: {platform: parseInt(args[1]), room_id: parseInt(args[2])}});
-        const player = toRaw(self.player)
-        player.dispose()
+        // const player = toRaw(self.player)
+        // player.dispose()
         setTimeout(() => {
-          window.location.reload()
+          self.reflushRoomInfo(newplatformTab, newRoomId)
+          // window.location.reload()
         }, 200)
       }
     })
@@ -225,6 +255,12 @@ export default defineComponent({
     })
     ipcRenderer.on('mouse-on-video-window', (event, args) => {
       this.videoShowClass = 'show-video-ctrl'
+    })
+    // 改变窗口大小后要重新加载弹幕的弹道
+    ipcRenderer.on('video-window-resize', (event, args) => {
+      setTimeout(() => {
+        self.$refs.danmakuRef.resize()
+      }, 300)
     })
 
   },
@@ -262,6 +298,8 @@ export default defineComponent({
       fullScreenStatus: false,
       danmakuBtnColor: 'deep-orange-lighten-2',
       fullScreenColor: 'white',
+      showDanmakuConfig: 1, // 默认显示弹幕
+      videoReplayEventConfig: 0, // 默认继续播放
     }
   },
 })
