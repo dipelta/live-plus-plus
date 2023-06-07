@@ -29,20 +29,6 @@ class Bootstrap {
   }
 
   private checkUpdate() {
-    let updateUrl = ""
-    switch (process.platform){
-      case 'darwin':
-        updateUrl = 'https://api.live.dipelta.cn/app_releases/darwin'
-        break
-      case 'win32':
-        updateUrl = 'https://api.live.dipelta.cn/app_releases/win32'
-        break
-      case 'linux':
-        updateUrl = 'https://api.live.dipelta.cn/app_releases/linux'
-        break
-      default:
-    }
-    log(updateUrl)
     autoUpdater.on('error', (err) => {
       log('error: ' + err)
     })
@@ -70,8 +56,21 @@ class Bootstrap {
       mainWindow.webContents.send('app-update-available', [])
     })
 
-    if (updateUrl !== "") {
-      autoUpdater.setFeedURL(updateUrl)
+    let canUpdate = false
+    switch (process.platform) {
+      case 'darwin':
+        canUpdate = true
+        break
+      case 'win32':
+        canUpdate = true
+        break
+      case 'linux':
+        canUpdate = true
+        break
+      default:
+    }
+
+    if (canUpdate) {
       autoUpdater.checkForUpdates()
     }
   }
