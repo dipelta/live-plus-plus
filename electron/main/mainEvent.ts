@@ -236,6 +236,10 @@ class MainEvent {
       return db.getAppConfig()
     })
 
+    ipcMain.handle('get-app-version', (event: IpcMainEvent, args: any[]) =>{
+      return process.env.APP_VERSION
+    })
+
   }
 
 }

@@ -296,6 +296,11 @@ export default defineComponent({
       this.appConfig.main_window_close_event = this.appConfigEnum.main_window_close_event[appConfig.main_window_close_event]
       this.appConfig.video_replay_event = this.appConfigEnum.video_replay_event[appConfig.video_replay_event]
     })
+
+    ipcRenderer.invoke('get-app-version').then((ver) => {
+      this.appVersion = ver
+    })
+
   },
   watch: {
     bindEmailDialog: function (newVal, oldVal) {
