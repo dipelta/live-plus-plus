@@ -97,6 +97,7 @@
 
       <v-row align="center" style="padding: 20px;margin-top: -20px" id="settingGroup">
         <h2 style=";margin-left: 12px">应用设置</h2>
+        <span style="margin-left: 10px">(当前版本: {{appVersion}})</span>
         <v-col cols="12" style="margin-top: 10px">
           <v-select
               label="播放器弹幕设置"
@@ -167,6 +168,7 @@ export default defineComponent({
       inputVerificationCode: "", // 验证码值
       inputEmailError: "", // 邮箱输入错误提示
       inputVerificationCodeError: "", // 验证码输入错误的提示
+      appVersion: process.env.APP_VERSION
     }
   },
   methods: {

@@ -8,7 +8,7 @@ import {api, apiResponse} from "../../src/plugins/api";
 import db from "../../src/plugins/db";
 import {autoUpdater} from "electron-updater";
 import {log} from "electron-log";
-import {ProgressInfo} from "builder-util-runtime";
+import packageConfig from "../../package.json"
 
 class Bootstrap {
 
@@ -169,6 +169,7 @@ class Bootstrap {
     process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
       ? join(process.env.DIST_ELECTRON, '../public')
       : process.env.DIST
+    process.env.APP_VERSION = packageConfig.version
   }
 
   run() {
