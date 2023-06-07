@@ -1,8 +1,9 @@
 <template>
   <v-app id="vapp">
     <router-view id="route-view"></router-view>
-    <v-snackbar v-model="showMsg" min-width="auto" multi-line min-height="0"
-                location="center" :timeout="1500" :color="msgColor">
+    <v-snackbar id="alert-msg" v-model="showMsg" multi-line min-height="0"
+                location="center" :timeout="1500" :color="msgColor"
+                style="">
       {{ msgContent }}
     </v-snackbar>
   </v-app>

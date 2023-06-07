@@ -10,6 +10,18 @@
   display: none !important;
 }
 
+.v-snackbar__content {
+  max-width: 250px;
+  min-width: auto;
+}
+
+.v-snackbar__wrapper {
+  min-width: auto !important;
+  max-width: 250px !important;
+  left: auto !important;
+  transform: none !important;
+}
+
 .platform-content {
   overflow-y: scroll;
   position: fixed;

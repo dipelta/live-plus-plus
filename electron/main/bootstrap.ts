@@ -6,6 +6,9 @@ import {v4 as uuidv4} from 'uuid';
 import {join} from 'node:path'
 import {api, apiResponse} from "../../src/plugins/api";
 import db from "../../src/plugins/db";
+import {autoUpdater} from "electron-updater";
+import {log} from "electron-log";
+import {ProgressInfo} from "builder-util-runtime";
 
 class Bootstrap {
 
@@ -21,6 +24,56 @@ class Bootstrap {
     await this.login()
     // 注册主进程事件
     mainEvent.register()
+    // 检查更新
+    this.checkUpdate()
+  }
+
+  private checkUpdate() {
+    let updateUrl = ""
+    switch (process.platform){
+      case 'darwin':
+        updateUrl = 'https://api.live.dipelta.cn/app_releases/darwin'
+        break
+      case 'win32':
+        updateUrl = 'https://api.live.dipelta.cn/app_releases/win32'
+        break
+      case 'linux':
+        updateUrl = 'https://api.live.dipelta.cn/app_releases/linux'
+        break
+      default:
+    }
+    log(updateUrl)
+    autoUpdater.on('error', (err) => {
+      log('error: ' + err)
+    })
+    autoUpdater.on('update-available', (info) => {
+      log('发现了新的版本：')
+      log(info)
+    })
+    autoUpdater.on('checking-for-update', () => {
+      log("checking-for-update")
+    })
+
+    autoUpdater.on('download-progress', (progressInfo) => {
+      log(progressInfo)
+    })
+
+    autoUpdater.on('update-not-available', (res) => {
+      log("没有可更新版本:")
+      log(res)
+    })
+
+    //监听'update-downloaded'事件，新版本下载完成时触发
+    autoUpdater.on('update-downloaded', () => {
+      // 弹出确认更新窗口
+      const mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
+      mainWindow.webContents.send('app-update-available', [])
+    })
+
+    if (updateUrl !== "") {
+      autoUpdater.setFeedURL(updateUrl)
+      autoUpdater.checkForUpdates()
+    }
   }
 
   /**

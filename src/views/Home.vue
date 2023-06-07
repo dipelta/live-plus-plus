@@ -15,6 +15,26 @@
     <LiveList :platformTab="platformTab"/>
     <AddLive :openAddLiveStatus="openAddLiveStatus" :platformTab="platformTab"/>
     <AppSetting :openSettingStatus="openSettingStatus"></AppSetting>
+
+    <v-dialog v-model="appUpdateDialog" width="auto">
+      <v-card>
+        <v-card-text>
+          发现新版本，是否更新？
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green-darken-1" variant="text" @click="installUpdateFile">
+            更新
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="red-darken-1" variant="text" @click="appUpdateDialog = false">
+            取消
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-container>
 </template>
 
@@ -44,6 +64,7 @@ export default defineComponent({
       openSettingStatus: false, // 打开设置窗口
       openAddLiveStatus: false, // 打开添加主播窗口
       reflushLoading: false,
+      appUpdateDialog: false
     }
   },
   methods: {
@@ -55,14 +76,20 @@ export default defineComponent({
     },
     changeOpenAppSettingStatus(status) {
       this.openSettingStatus = status
+    },
+    installUpdateFile() {
+      this.appUpdateDialog = !this.appUpdateDialog
+      ipcRenderer.send('alert-msg', ['success', '即将关闭程序进行更新，安装成功后应用将会自动重启'])
+      setTimeout(()=>{
+        ipcRenderer.send('install-update-file', [])
+      }, 1500)
     }
   },
   mounted() {
 
-    // 检查更新
-    ipcRenderer.send('check-update', [])
-    ipcRenderer.on('app-need-to-update', (event, args) => {
-      console.log('发现了新版本')
+    // 新版本已经下载结束，提示用户是否需要更新
+    ipcRenderer.on('app-update-available', (event, args) => {
+      this.appUpdateDialog = !this.appUpdateDialog
     })
 
     ipcRenderer.on('reflush-live-list-reply', (event, args) => {

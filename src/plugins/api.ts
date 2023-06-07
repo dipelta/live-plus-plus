@@ -77,9 +77,14 @@ class Api {
     await this.http().post(url, data).then(function (response) {
       result = response.data
     }).catch(function (error) {
-      result.code = 502
       console.log('请求出错')
       console.log(error)
+      result = new ApiResponse()
+      if (error.code !== 5001) {
+        result.code = 502
+      }
+      result.msg = error.msg ? error.msg : error.message
+      result.data = []
     })
     return result
   }
