@@ -237,8 +237,11 @@ export default defineComponent({
         // const player = toRaw(self.player)
         // player.dispose()
         setTimeout(() => {
-          self.reflushRoomInfo(newplatformTab, newRoomId)
-          // window.location.reload()
+          if (newplatformTab === 2) {
+            window.location.reload()
+          } else {
+            self.reflushRoomInfo(newplatformTab, newRoomId)
+          }
         }, 200)
       }
     })
