@@ -83,7 +83,7 @@ export default defineComponent({
 }
 
 #settingBtn {
-  font-size: 15px;
+  font-size: 16px;
   -webkit-app-region: no-drag;
   /*margin-top: 1px;*/
   margin-left: 4px;
@@ -92,6 +92,7 @@ export default defineComponent({
 
 #addLiveBtn {
   font-size: 17px;
+  top: -0.5px;
   -webkit-app-region: no-drag;
 }
 
