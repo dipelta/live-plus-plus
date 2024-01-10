@@ -149,13 +149,22 @@ export default defineComponent({
       const self = this
       ipcRenderer.invoke('get-all-follow', []).then(function (follows) {
         ipcRenderer.invoke('get-multi-room-info', [0, follows.douyu]).then(function (data) {
-          self.liveList[0] = data
+          if (data.length > 0) {
+            console.log('update douyu');
+            self.liveList[0] = data
+          }
         })
         ipcRenderer.invoke('get-multi-room-info', [1, follows.bilibili]).then(function (data) {
-          self.liveList[1] = data
+          if (data.length > 0) {
+            console.log('update bilibili');
+            self.liveList[1] = data
+          }
         })
         ipcRenderer.invoke('get-multi-room-info', [2, follows.huya]).then(function (data) {
-          self.liveList[2] = data
+          if (data.length > 0) {
+            console.log('update huya');
+            self.liveList[2] = data
+          }
         })
         ipcRenderer.send('reflush-live-list-over', [])
       })

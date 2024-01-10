@@ -51,6 +51,9 @@
   background: none;
 }
 
+#live-player video {
+  border-radius: 5px 5px 5px 5px;
+}
 
 #video-ctrl-bar .v-slider.v-input--horizontal .v-slider-track {
   height: 3px !important;

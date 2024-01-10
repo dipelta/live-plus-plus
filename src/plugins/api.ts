@@ -8,14 +8,14 @@ export class ApiResponse {
 
 class Api {
 
-  // private baseURL = 'https://api.live.dipelta.cn/'
+  private baseURL = 'https://api.live.dipelta.cn/'
 
-  private baseURL = 'http://api.live.me/'
+  // private baseURL = 'http://api.live.me/'
 
   private http() {
     let http = axios.create({
       baseURL: this.baseURL,
-      timeout: 5000,
+      timeout: 30000,
     })
     http.interceptors.response.use(function (response) {
       // 对响应数据做点什么
@@ -60,7 +60,8 @@ class Api {
     await this.http().get(url).then(function (response) {
       result = response.data
     }).catch(function (error) {
-      console.log(error)
+      // console.log(error)
+      console.log("[GET]URL = " + url)
       console.log(error.code)
       console.log(error.msg)
       console.log(error.message)
@@ -206,9 +207,9 @@ class Api {
     const roomIds = roomIdArr.join(";")
     const url = this.baseURL + "anchor/multi-data?room_id=" + roomIds + "&platform_type=" + platformType
     let response = await this.sendGet(url);
+    let datas = response.data
     // 对结果进行排序
     if (response.code === 200 ) {
-      let datas = response.data
       datas.sort(function (a, b) {
         if (a.is_live === b.is_live) {
           if (a.is_live === 0) {
@@ -225,7 +226,7 @@ class Api {
       })
       return datas
     }
-    return [];
+    return datas;
   }
 
   /**

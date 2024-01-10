@@ -109,7 +109,9 @@ export default defineComponent({
     },
     reflushDanmakuInfo(platformTab, roomId) {
       console.log("尝试连接弹幕服务器")
+      // console.log(this.danmuWebsocket)
       if (this.danmuWebsocket) {
+        console.log("发现已经存在danmakuRef对象，准备清除")
         this.$refs.danmakuRef.stop()
         this.danmuWebsocket.close()
         this.danmuWebsocket = null
@@ -155,6 +157,7 @@ export default defineComponent({
             const info = result[0]
             const main_user_id = result[1]
             const client = result[2]
+            this.danmuWebsocket = client
             this.heartbeat = setInterval(() => {
               huya.heartbeat(info, main_user_id, client)
             }, 60000)
@@ -180,6 +183,12 @@ export default defineComponent({
           }
         })
       }).then(() => {
+        if (this.danmuWebsocket) {
+          console.log("发现已经存在danmakuRef对象，准备清除")
+          this.$refs.danmakuRef.stop()
+          this.danmuWebsocket.close()
+          this.danmuWebsocket = null
+        }
         this.reflushDanmakuInfo(platformTab, roomId)
       })
     }
