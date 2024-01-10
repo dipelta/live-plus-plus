@@ -34,6 +34,9 @@ export default defineComponent({
         case 'error':
           self.msgColor = 'deep-orange-accent-2'
           break;
+        case 'brown':
+          self.msgColor = 'brown-darken-1'
+          break;
         default:
           self.msgColor = 'light-blue-lighten-3'
           break;

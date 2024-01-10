@@ -168,65 +168,47 @@ export default defineComponent({
       }
     },
     reloadVideoPlayer(newplatformTab, newRoomId) {
+      this.player.dispose();
       this.$refs.videoPlayer.innerHTML = `<video id="live-player" class="video-js" style="border-radius: 5px"></video>`
+      let playerOptions = {
+        bigPlayButton: false,
+        textTrackDisplay: false,
+        posterImage: true,
+        errorDisplay: false,
+        autoplay: true,
+        fluid: true,
+        flvjs: {
+          mediaDataSource: {
+            isLive: true,
+            cors: false,
+            withCredentials: false,
+          },
+        },
+      }
+      this.player = videojs("live-player", playerOptions, function () {
+        // console.log("xxxx")
+      });
       this.$nextTick(() => {
-        console.log('load')
+        // console.log('load')
         this.reflushRoomInfo(newplatformTab, newRoomId)
       })
     },
     reflushRoomInfo(platformTab, roomId) {
+      ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId]).then((liveUrl) => {
-
-  
-        // const player = toRaw(this.player)
+        const player = toRaw(this.player)
         let liveUrlType = 'application/x-mpegURL' // hls
         if (platformTab === 2) {
           liveUrlType = 'video/x-flv'
         }
-        // player.src({
-        //   src: liveUrl,
-        //   type: liveUrlType
-        // })
-        // this.player.src({
-        //   src: liveUrl,
-        //   type: liveUrlType
-        // })
-
+        player.src({
+          src: liveUrl,
+          type: liveUrlType
+        })
         console.log("liveUrl")
         console.log(liveUrl)
         console.log("liveUrlType")
         console.log(liveUrlType)
-        
-        this.playerOptions = {
-          bigPlayButton: false,
-          textTrackDisplay: false,
-          posterImage: true,
-          errorDisplay: false,
-          autoplay: true,
-          fluid: true,
-          flvjs: {
-            mediaDataSource: {
-              isLive: true,
-              cors: false,
-              withCredentials: false,
-            },
-          },
-          // sources: [
-          //   {
-          //     src: liveUrl,
-          //     type: liveUrlType
-          //   }
-          // ]
-        }
-        this.player = videojs("live-player", this.playerOptions, function () {
-          console.log("xxxx")
-        });
-
-        this.player.src({
-          src: liveUrl,
-          type: liveUrlType
-        })
-
         ipcRenderer.invoke('get-room-info', [platformTab, [roomId]]).then((data) => {
           if (data) {
             this.roomName = data[0].room_name
