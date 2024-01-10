@@ -5,7 +5,9 @@
       <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku"
                    speeds="100" :extraStyle="extraStyle" fontSize="20">
       </vue-danmaku>
-      <video id="live-player" class="video-js" style="border-radius: 5px"></video>
+      <div ref="videoPlayer" style="height:100%; width:100%; border-radius: 5px">
+        <video id="live-player" class="video-js" style="border-radius: 5px"></video>
+      </div>
       <v-container id="video-ctrl-bar" style="text-align: center" :class="videoShowClass">
         <v-row align="center" justify="space-around">
           <v-col>
@@ -165,18 +167,66 @@ export default defineComponent({
         })
       }
     },
+    reloadVideoPlayer(newplatformTab, newRoomId) {
+      this.$refs.videoPlayer.innerHTML = `<video id="live-player" class="video-js" style="border-radius: 5px"></video>`
+      this.$nextTick(() => {
+        console.log('load')
+        this.reflushRoomInfo(newplatformTab, newRoomId)
+      })
+    },
     reflushRoomInfo(platformTab, roomId) {
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId]).then((liveUrl) => {
-        console.log(liveUrl)
-        const player = toRaw(this.player)
+
+  
+        // const player = toRaw(this.player)
         let liveUrlType = 'application/x-mpegURL' // hls
         if (platformTab === 2) {
           liveUrlType = 'video/x-flv'
         }
-        player.src({
+        // player.src({
+        //   src: liveUrl,
+        //   type: liveUrlType
+        // })
+        // this.player.src({
+        //   src: liveUrl,
+        //   type: liveUrlType
+        // })
+
+        console.log("liveUrl")
+        console.log(liveUrl)
+        console.log("liveUrlType")
+        console.log(liveUrlType)
+        
+        this.playerOptions = {
+          bigPlayButton: false,
+          textTrackDisplay: false,
+          posterImage: true,
+          errorDisplay: false,
+          autoplay: true,
+          fluid: true,
+          flvjs: {
+            mediaDataSource: {
+              isLive: true,
+              cors: false,
+              withCredentials: false,
+            },
+          },
+          // sources: [
+          //   {
+          //     src: liveUrl,
+          //     type: liveUrlType
+          //   }
+          // ]
+        }
+        this.player = videojs("live-player", this.playerOptions, function () {
+          console.log("xxxx")
+        });
+
+        this.player.src({
           src: liveUrl,
           type: liveUrlType
         })
+
         ipcRenderer.invoke('get-room-info', [platformTab, [roomId]]).then((data) => {
           if (data) {
             this.roomName = data[0].room_name
@@ -243,14 +293,18 @@ export default defineComponent({
         const newplatformTab = parseInt(args[1])
         const newRoomId = parseInt(args[2])
         this.$router.push({path: '/video', query: {platform: parseInt(args[1]), room_id: parseInt(args[2])}});
-        // const player = toRaw(self.player)
+        console.log(window.location.href)
+        console.log(this.player)
+        // const player = toRaw(this.player)
         // player.dispose()
+        // this.player = videojs("live-player", this.playerOptions, function () {});
         setTimeout(() => {
-          if (newplatformTab === 2) {
-            window.location.reload()
-          } else {
-            self.reflushRoomInfo(newplatformTab, newRoomId)
-          }
+          // if (newplatformTab === 2) {
+          //   window.location.reload()
+          // } else {
+            self.reloadVideoPlayer(newplatformTab, newRoomId)
+            // self.reflushRoomInfo(newplatformTab, newRoomId)
+          // }
         }, 200)
       }
     })
@@ -319,14 +373,6 @@ export default defineComponent({
 
 <style scoped>
 #video-container {
-  width: 100%;
-  height: 100%;
-  background: #2f2f2f;
-  border-radius: 5px 5px 5px 5px;
-}
-
-#live-player {
-  position: absolute;
   width: 100%;
   height: 100%;
   background: #2f2f2f;

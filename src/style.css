@@ -55,6 +55,14 @@
   border-radius: 5px 5px 5px 5px;
 }
 
+#live-player {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #2f2f2f;
+  border-radius: 5px 5px 5px 5px;
+}
+
 #video-ctrl-bar .v-slider.v-input--horizontal .v-slider-track {
   height: 3px !important;
 }
