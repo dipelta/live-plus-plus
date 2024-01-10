@@ -7,8 +7,8 @@ import {join} from 'node:path'
 import {api, apiResponse} from "../../src/plugins/api";
 import db from "../../src/plugins/db";
 import {autoUpdater} from "electron-updater";
-import {log} from "electron-log";
 import packageConfig from "../../package.json"
+import logger from "../../src/plugins/log"
 
 class Bootstrap {
 
@@ -30,23 +30,23 @@ class Bootstrap {
 
   private checkUpdate() {
     autoUpdater.on('error', (err) => {
-      log('error: ' + err)
+      logger.info('error: ' + err)
     })
     autoUpdater.on('update-available', (info) => {
-      log('发现了新的版本：')
-      log(info)
+      logger.info('发现了新的版本：')
+      logger.info(info)
     })
     autoUpdater.on('checking-for-update', () => {
-      log("checking-for-update")
+      logger.info("checking-for-update")
     })
 
     autoUpdater.on('download-progress', (progressInfo) => {
-      log(progressInfo)
+      logger.info(progressInfo)
     })
 
     autoUpdater.on('update-not-available', (res) => {
-      log("没有可更新版本:")
-      log(res)
+      logger.info("没有可更新版本:")
+      logger.info(res)
     })
 
     //监听'update-downloaded'事件，新版本下载完成时触发
@@ -71,6 +71,7 @@ class Bootstrap {
     }
 
     if (canUpdate) {
+      logger.info("autoUpdater.checkForUpdates")
       autoUpdater.checkForUpdates()
     }
   }
