@@ -198,7 +198,7 @@ export default defineComponent({
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId]).then((liveUrl) => {
         const player = toRaw(this.player)
         let liveUrlType = 'application/x-mpegURL' // hls
-        if (platformTab === 2) {
+        if (liveUrl.indexOf('.flv') !== -1) {
           liveUrlType = 'video/x-flv'
         }
         player.src({
