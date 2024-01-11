@@ -121,9 +121,10 @@ export default defineComponent({
     getStreamSourceUrl(platformTab, roomInfo) {
       console.log("获取直播源：" + roomInfo.room_id)
       if (roomInfo.is_live === 1 && roomInfo.is_loop === 0) {
-        ipcRenderer.invoke('get-live-url-info', [platformTab, roomInfo.room_id]).then((liveUrl) => {
+        ipcRenderer.invoke('get-live-url-info', [platformTab, roomInfo.room_id, null]).then((data) => {
           // 直播源地址复制到粘贴板
-          ipcRenderer.invoke('live-url-to-clipboard', [liveUrl])
+          let liveUrl = data.url
+          ipcRenderer.send('live-url-to-clipboard', [liveUrl])
           ipcRenderer.send('alert-msg', ['info', '直播源地址已经复制到粘贴板'])
         })
       } else {

@@ -231,7 +231,7 @@ class MainEvent {
       return liveUrl.data
     })
 
-    ipcMain.handle('live-url-to-clipboard', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.on('live-url-to-clipboard', async function (event: IpcMainEvent, args: any[]) {
       clipboard.writeText(args[0])
       event.reply('live-url-to-clipboard-reply', true)
     })

@@ -214,6 +214,7 @@ export default defineComponent({
     },
     reloadVideoPlayer(newplatformTab, newRoomId, rate) {
       this.player.dispose();
+      this.qnList = [];
       this.$refs.videoPlayer.innerHTML = `<video id="live-player" class="video-js" style="border-radius: 5px"></video>`
       let playerOptions = {
         bigPlayButton: false,
