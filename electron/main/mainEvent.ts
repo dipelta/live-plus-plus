@@ -219,7 +219,15 @@ class MainEvent {
     ipcMain.handle('get-live-url-info', async function (event: IpcMainEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
-      const liveUrl = await api.liveUrl(platformTab, roomId) as apiResponse
+      const rate = args[2]
+      const liveUrl = await api.liveUrl(platformTab, roomId, rate) as apiResponse
+      return liveUrl.data
+    })
+
+    ipcMain.handle('get-live-qn-list', async function (event: IpcMainEvent, args: any[]) {
+      const platformTab = args[0]
+      const roomId = args[1]
+      const liveUrl = await api.liveQnList(platformTab, roomId) as apiResponse
       return liveUrl.data
     })
 

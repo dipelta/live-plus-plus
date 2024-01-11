@@ -1,5 +1,7 @@
 import axios from "axios";
-const { app } = require('electron');
+
+const {app} = require('electron');
+
 // const appVersion = app.getVersion()
 
 export class ApiResponse {
@@ -21,7 +23,7 @@ class Api {
     })
     // 配置拦截器，白话：use 给请求之前做的事，可以是多件，可以 use 多次
     http.interceptors.request.use((config) => {
-        config.headers['version'] = app.getVersion();
+      config.headers['version'] = app.getVersion();
       return config
     });
     http.interceptors.response.use(function (response) {
@@ -213,7 +215,7 @@ class Api {
     let response = await this.sendGet(url);
     let datas = response.data
     // 对结果进行排序
-    if (response.code === 200 ) {
+    if (response.code === 200) {
       datas.sort(function (a, b) {
         if (a.is_live === b.is_live) {
           if (a.is_live === 0) {
@@ -237,10 +239,26 @@ class Api {
    * 根据房间号获取到直播源地址
    * @param platformTab
    * @param roomId
+   * @param rate
    */
-  public async liveUrl(platformTab, roomId) {
+  public async liveUrl(platformTab, roomId, rate) {
     const platformType = this.getPlatformType(parseInt(platformTab))
-    const url = "/stream-source/data?" + "room_id=" + roomId + "&platform_type=" + platformType
+    let url = "/stream-source/data?" + "room_id=" + roomId + "&platform_type=" + platformType
+    if (rate !== null) {
+      url += "&rate=" + rate
+    }
+    console.log(url)
+    return await this.sendGet(url);
+  }
+
+  /**
+   * 获取直播间的清晰度列表
+   * @param platformTab
+   * @param roomId
+   */
+  public async liveQnList(platformTab, roomId) {
+    const platformType = this.getPlatformType(parseInt(platformTab))
+    const url = "/stream-source/qn-list?" + "room_id=" + roomId + "&platform_type=" + platformType
     return await this.sendGet(url);
   }
 

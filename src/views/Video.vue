@@ -36,6 +36,20 @@
           </v-col>
         </v-row>
       </v-container>
+      <v-container id="video-switch-qn-bar" :class="videoShowClass">
+        <v-list style="border-radius:5px; padding-top: 0;padding-bottom: 0;background: rgba(66, 66, 66, 0.9);">
+          <v-list-item v-for="(item, index) in qnList" :key="index"
+                       style="padding: 5px;text-align: center;min-height: 0;color: white"
+                       @click.left.prevent="changeLiveQn(item)">
+            <template v-if="parseInt(item.rate) === parseInt(this.currentQn)">
+              <v-list-item-title style="font-size: 12px; color: #FF8A65">{{ item.name }}</v-list-item-title>
+            </template>
+            <template v-else>
+              <v-list-item-title style="font-size: 12px">{{ item.name }}</v-list-item-title>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-container>
     </div>
   </v-container>
 </template>
@@ -59,6 +73,17 @@ export default defineComponent({
     vueDanmaku
   },
   methods: {
+    // 切换清晰度
+    changeLiveQn(item) {
+      let rate = item.rate
+      const platformTab = parseInt(tool.urlGetParams('platform'))
+      const roomId = parseInt(tool.urlGetParams('room_id'))
+      // console.log('即将切换清晰度:')
+      // console.log('rate:' + rate)
+      // console.log('platformTab:' + platformTab)
+      // console.log('roomId:' + roomId)
+      this.reloadVideoPlayer(platformTab, roomId, rate)
+    },
     togglePlay() {
       if (this.player.paused()) { // true 直播没有播放
         this.videoPlayIcon = 'mdi-pause'
@@ -68,7 +93,7 @@ export default defineComponent({
         } else {
           const platformTab = parseInt(tool.urlGetParams('platform'))
           const roomId = parseInt(tool.urlGetParams('room_id'))
-          this.reflushRoomInfo(platformTab, roomId)
+          this.reloadVideoPlayer(platformTab, roomId, this.currentQn)
         }
       } else {
         this.videoPlayIcon = 'mdi-play'
@@ -187,7 +212,7 @@ export default defineComponent({
         })
       }
     },
-    reloadVideoPlayer(newplatformTab, newRoomId) {
+    reloadVideoPlayer(newplatformTab, newRoomId, rate) {
       this.player.dispose();
       this.$refs.videoPlayer.innerHTML = `<video id="live-player" class="video-js" style="border-radius: 5px"></video>`
       let playerOptions = {
@@ -210,12 +235,16 @@ export default defineComponent({
       });
       this.$nextTick(() => {
         // console.log('load')
-        this.reflushRoomInfo(newplatformTab, newRoomId)
+        this.reflushRoomInfo(newplatformTab, newRoomId, rate)
       })
     },
-    reflushRoomInfo(platformTab, roomId) {
+    reflushRoomInfo(platformTab, roomId, rate) {
       ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
-      ipcRenderer.invoke('get-live-url-info', [platformTab, roomId]).then((liveUrl) => {
+      ipcRenderer.invoke('get-live-url-info', [platformTab, roomId, rate]).then((data) => {
+        console.log(data)
+        let liveUrl = data.url
+        this.currentQn = data.rate
+
         const player = toRaw(this.player)
         let liveUrlType = 'application/x-mpegURL' // hls
         if (liveUrl.indexOf('.flv') !== -1) {
@@ -225,10 +254,8 @@ export default defineComponent({
           src: liveUrl,
           type: liveUrlType
         })
-        console.log("liveUrl")
-        console.log(liveUrl)
-        console.log("liveUrlType")
-        console.log(liveUrlType)
+        console.log("liveUrl = " + liveUrl)
+        console.log("liveUrlType = " + liveUrlType)
         ipcRenderer.invoke('get-room-info', [platformTab, [roomId]]).then((data) => {
           if (data) {
             this.roomName = data[0].room_name
@@ -242,6 +269,15 @@ export default defineComponent({
           this.danmuWebsocket = null
         }
         this.reflushDanmakuInfo(platformTab, roomId)
+      }).then(() => {
+        // 获取清晰度列表
+        ipcRenderer.invoke('get-live-qn-list', [platformTab, roomId]).then((data) => {
+          console.log(data)
+          this.qnList = data
+
+          console.log('当前清晰度, rate = ' + this.currentQn)
+
+        })
       })
     }
   },
@@ -288,7 +324,7 @@ export default defineComponent({
     const platformTab = parseInt(tool.urlGetParams('platform'))
     const roomId = parseInt(tool.urlGetParams('room_id'))
 
-    this.reflushRoomInfo(platformTab, roomId)
+    this.reflushRoomInfo(platformTab, roomId, this.currentQn)
 
     ipcRenderer.on('change-video-info', (event, args) => {
       if (platformTab !== parseInt(args[1]) || roomId !== parseInt(args[2])) {
@@ -298,7 +334,7 @@ export default defineComponent({
         console.log(window.location.href)
         console.log(this.player)
         setTimeout(() => {
-          self.reloadVideoPlayer(newplatformTab, newRoomId)
+          self.reloadVideoPlayer(newplatformTab, newRoomId, null)
         }, 200)
       }
     })
@@ -340,6 +376,8 @@ export default defineComponent({
   },
   data() {
     return {
+      qnList: [],
+      currentQn: null, // 当前清晰度
       danmuQueue: [],
       danmuTask: null,
       pageX: 0,
@@ -393,6 +431,16 @@ export default defineComponent({
   left: 50%;
   margin-left: -175px;
   top: 75%;
+}
+
+#video-switch-qn-bar {
+  position: absolute;
+  width: auto;
+  max-width: 200px;
+  border-radius: 10px;
+  z-index: 2;
+  right: 1%;
+  top: 5%;
 }
 
 .hide-video-ctrl {
