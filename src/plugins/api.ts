@@ -1,4 +1,6 @@
 import axios from "axios";
+const { app } = require('electron');
+// const appVersion = app.getVersion()
 
 export class ApiResponse {
   code: number
@@ -17,14 +19,16 @@ class Api {
       baseURL: this.baseURL,
       timeout: 30000,
     })
+    // 配置拦截器，白话：use 给请求之前做的事，可以是多件，可以 use 多次
+    http.interceptors.request.use((config) => {
+        config.headers['version'] = app.getVersion();
+      return config
+    });
     http.interceptors.response.use(function (response) {
-      // 对响应数据做点什么
       return response;
     }, function (error) {
       // 对响应错误做点什么
       if (error.message.includes('timeout')) {   // 判断请求异常信息中是否含有超时timeout字符串
-        // console.log("错误回调", error);
-        // alert("网络超时");
         error.code = 5001
         error.msg = "网络超时"
       }
@@ -60,7 +64,7 @@ class Api {
     await this.http().get(url).then(function (response) {
       result = response.data
     }).catch(function (error) {
-      // console.log(error)
+      console.log(error)
       console.log("[GET]URL = " + url)
       console.log(error.code)
       console.log(error.msg)

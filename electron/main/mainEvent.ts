@@ -153,6 +153,20 @@ class MainEvent {
       return db.getPlatformFollows(platformTab)
     })
 
+    ipcMain.handle('get-huya-chat-info', async function (event: IpcMainEvent, args: any[]) {
+      const roomId = args[0]
+      return await api.huyaChatInfo(roomId)
+    })
+
+    /**
+     * 获取某个平台的关注数据
+     */
+    ipcMain.handle('search-anchor-by-keyword', async function (event: IpcMainEvent, args: any[]) {
+      const platformTab = args[0]
+      const searchKeyWord = args[1]
+      return await api.search(platformTab, searchKeyWord)
+    })
+
     /**
      * 获取所有平台的关注数据
      */

@@ -109,7 +109,7 @@ export default defineComponent({
     makeDefaultDanmakuColorStyle() {
       this.extraStyle = "color: #fff;font-weight:800;-webkit-text-stroke: 0.3px #000;"
     },
-    reflushDanmakuInfo(platformTab, roomId) {
+    async reflushDanmakuInfo(platformTab, roomId) {
       console.log("尝试连接弹幕服务器")
       // console.log(this.danmuWebsocket)
       if (this.danmuWebsocket) {
@@ -152,18 +152,18 @@ export default defineComponent({
           }
         }, 15000)
       } else { // 虎牙弹幕
-        huya.getChatInfo(roomId).then((chat) => {
-          huya.connectWs(chat, roomId, (content) => {
-            this.$refs.danmakuRef.insert(content)
-          }).then((result) => {
-            const info = result[0]
-            const main_user_id = result[1]
-            const client = result[2]
-            this.danmuWebsocket = client
-            this.heartbeat = setInterval(() => {
-              huya.heartbeat(info, main_user_id, client)
-            }, 60000)
-          })
+        const chatInfo = await ipcRenderer.invoke('get-huya-chat-info', [roomId])
+        // console.log(chatInfo)
+        huya.connectWs(chatInfo.data, roomId, (content) => {
+          this.$refs.danmakuRef.insert(content)
+        }).then((result) => {
+          const info = result[0]
+          const main_user_id = result[1]
+          const client = result[2]
+          this.danmuWebsocket = client
+          this.heartbeat = setInterval(() => {
+            huya.heartbeat(info, main_user_id, client)
+          }, 60000)
         })
       }
     },
@@ -284,8 +284,8 @@ export default defineComponent({
           // if (newplatformTab === 2) {
           //   window.location.reload()
           // } else {
-            self.reloadVideoPlayer(newplatformTab, newRoomId)
-            // self.reflushRoomInfo(newplatformTab, newRoomId)
+          self.reloadVideoPlayer(newplatformTab, newRoomId)
+          // self.reflushRoomInfo(newplatformTab, newRoomId)
           // }
         }, 200)
       }

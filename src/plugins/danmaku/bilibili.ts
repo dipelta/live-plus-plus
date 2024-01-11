@@ -1,6 +1,7 @@
 import {api} from "../api";
 import zlib from 'zlib'
 import {ipcRenderer} from "electron";
+import axios from "axios";
 
 class Bilibili {
 
@@ -55,11 +56,14 @@ class Bilibili {
 
   async getDanmuWssUrl(roomId: string) {
     const url = 'https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo?id=' + roomId + '&type=0'
-    const response = await api.sendGet(url)
+    // const response = await api.sendGet(url)
+    let response = await axios.get(url)
+    // console.log(response)
+    response = response.data
     if (response.code !== 0) {
       return false
     }
-    // console.log(response)
+
     const wsurl = 'wss://' + response.data.host_list[0].host + '/sub'
     const token = response.data.token
     return [wsurl, token]

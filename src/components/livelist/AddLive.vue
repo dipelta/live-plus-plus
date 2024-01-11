@@ -77,7 +77,8 @@ export default defineComponent({
     async search() {
       if (this.searchKeyWord) {
         this.searchLoading = true
-        const data = await api.search(this.platformTab, this.searchKeyWord)
+        // const data = await api.search(this.platformTab, this.searchKeyWord)
+        const data = await ipcRenderer.invoke('search-anchor-by-keyword', [this.platformTab, this.searchKeyWord])
         this.searchLoading = false
         if (data.code !== 200) {
           ipcRenderer.send('alert-msg', ['error', data.msg])
