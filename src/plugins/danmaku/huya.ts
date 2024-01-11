@@ -116,8 +116,9 @@ class Huya {
         id: md5(JSON.stringify(msg)),
         content: msg.sContent
       }
-      // console.log(msg_obj.content)
-      callback(msg.sContent)
+      // console.log(msg)
+      let color = msg.tBulletFormat.iFontColor.toString(16);
+      callback(msg.sContent, '#'+color)
       _emitter.emit('message', msg_obj)
     })
 

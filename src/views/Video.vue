@@ -103,7 +103,7 @@ export default defineComponent({
         this.$refs.danmakuRef.resize()
       }, 300)
     },
-    makeDanmakuColorStyle(color) {
+    async makeDanmakuColorStyle(color) {
       this.extraStyle = "color: " + color + ";font-weight:800;-webkit-text-stroke: 0.3px #000;"
     },
     makeDefaultDanmakuColorStyle() {
@@ -112,6 +112,7 @@ export default defineComponent({
     async reflushDanmakuInfo(platformTab, roomId) {
       console.log("尝试连接弹幕服务器")
       // console.log(this.danmuWebsocket)
+      this.danmuQueue = []; // 清空弹幕队列
       if (this.danmuWebsocket) {
         console.log("发现已经存在danmakuRef对象，准备清除")
         this.$refs.danmakuRef.stop()
@@ -121,11 +122,31 @@ export default defineComponent({
       if (this.heartbeat) {
         clearInterval(this.heartbeat)
       }
+      this.$refs.danmakuRef.play()
+
+
+      // 开始显示弹幕的任务
+      if (this.danmuTask) {
+        clearInterval(this.danmuTask)
+      }
+      this.danmuTask = setInterval(() => {
+        if (this.danmuQueue.length > 0) {
+          let first = this.danmuQueue[0]
+          this.danmuQueue.shift()
+          if (first.length === 1) {
+            this.$refs.danmakuRef.insert(first[0])
+          }
+          if (first.length === 2) {
+            this.makeDanmakuColorStyle(first[1]).then(() => {
+              this.$refs.danmakuRef.insert(first[0])
+            })
+          }
+        }
+      }, 10)
+
       if (platformTab === 0) { // 斗鱼弹幕
         this.danmuWebsocket = douyu.connectWs(roomId, (danmuMsg, danmuColor) => {
-          this.makeDanmakuColorStyle(danmuColor)
-          this.$refs.danmakuRef.insert(danmuMsg)
-          this.$refs.danmakuRef.play()
+          this.danmuQueue.push([danmuMsg, danmuColor])
         })
         // 重置心跳
         this.heartbeat = setInterval(() => {
@@ -136,9 +157,8 @@ export default defineComponent({
       } else if (platformTab === 1) { // B站弹幕
         let token = ""
         bilibili.connectWs(roomId, (danmuMsg, danmuColor, bilibiliToken) => {
-          this.makeDanmakuColorStyle(danmuColor)
-          this.$refs.danmakuRef.insert(danmuMsg)
-          this.$refs.danmakuRef.play()
+          // 将弹幕信息发送到队列中
+          this.danmuQueue.push([danmuMsg, danmuColor])
           token = bilibiliToken
         }).then((ws) => {
           this.danmuWebsocket = ws
@@ -153,9 +173,9 @@ export default defineComponent({
         }, 15000)
       } else { // 虎牙弹幕
         const chatInfo = await ipcRenderer.invoke('get-huya-chat-info', [roomId])
-        // console.log(chatInfo)
-        huya.connectWs(chatInfo.data, roomId, (content) => {
-          this.$refs.danmakuRef.insert(content)
+        huya.connectWs(chatInfo.data, roomId, (danmuMsg, danmuColor) => {
+          // this.$refs.danmakuRef.insert(content)
+          this.danmuQueue.push([danmuMsg, danmuColor])
         }).then((result) => {
           const info = result[0]
           const main_user_id = result[1]
@@ -277,16 +297,8 @@ export default defineComponent({
         this.$router.push({path: '/video', query: {platform: parseInt(args[1]), room_id: parseInt(args[2])}});
         console.log(window.location.href)
         console.log(this.player)
-        // const player = toRaw(this.player)
-        // player.dispose()
-        // this.player = videojs("live-player", this.playerOptions, function () {});
         setTimeout(() => {
-          // if (newplatformTab === 2) {
-          //   window.location.reload()
-          // } else {
           self.reloadVideoPlayer(newplatformTab, newRoomId)
-          // self.reflushRoomInfo(newplatformTab, newRoomId)
-          // }
         }, 200)
       }
     })
@@ -328,6 +340,8 @@ export default defineComponent({
   },
   data() {
     return {
+      danmuQueue: [],
+      danmuTask: null,
       pageX: 0,
       pageY: 0,
       mousePosition: '',

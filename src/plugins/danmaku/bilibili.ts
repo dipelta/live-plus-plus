@@ -33,9 +33,13 @@ class Bilibili {
             const resultArr = this.unPackMsg(decoded.toString())
             // console.log(resultArr)
             resultArr.forEach(function (data) {
-              // console.log(data)
               if (data.cmd === 'DANMU_MSG' && data.info[1]) {
-                callback(data.info[1], "#"+data.info[0][7].substring(0,6), bilibiliToken)
+                // console.log(data.info[1], data.info)
+                let extra = JSON.parse(data.info[0][15].extra);
+                // console.log(extra)
+                let color = extra.color.toString(16);
+                // console.log(color)
+                callback(data.info[1], "#" + color, bilibiliToken)
               }
             })
           }
