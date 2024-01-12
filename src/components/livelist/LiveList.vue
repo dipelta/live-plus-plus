@@ -98,12 +98,15 @@ export default defineComponent({
   },
   methods: {
     openVideo(platformTab, roomInfo) {
+      console.log("click-live-list")
       if (roomInfo.is_live === 1 || roomInfo.is_loop === 1) {
         // 虎牙录播无法播放
         if (platformTab === 2 && roomInfo.is_loop === 1) {
           ipcRenderer.send('alert-msg', ['warning', '暂不支持虎牙的录播观看'])
         } else {
+          console.log("open-video")
           ipcRenderer.invoke('open-video', [platformTab, roomInfo.room_id]).then(function () {
+            console.log("change-video-info")
             ipcRenderer.send('change-video-info', [platformTab, roomInfo.room_id, roomInfo.room_name])
           })
         }

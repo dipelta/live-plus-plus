@@ -286,7 +286,7 @@ class MainEvent {
             newHeight = newWidth * display[1] / display[0]
           } else if (parseInt(display[1]) > parseInt(display[0])) {
             // console.log('change-2')
-            newHeight = 960
+            newHeight = 800
             newWidth = newHeight * display[0] / display[1]
           }
           // console.log('newWidth = ' + newWidth)

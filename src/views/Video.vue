@@ -333,6 +333,7 @@ export default defineComponent({
     this.reflushRoomInfo(platformTab, roomId, this.currentQn)
 
     ipcRenderer.on('change-video-info', (event, args) => {
+      console.log('change-video-info')
       if (platformTab !== parseInt(args[1]) || roomId !== parseInt(args[2])) {
         const newplatformTab = parseInt(args[1])
         const newRoomId = parseInt(args[2])
