@@ -242,10 +242,28 @@ export default defineComponent({
     reflushRoomInfo(platformTab, roomId, rate) {
       ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId, rate]).then((data) => {
-        console.log(data)
+        // console.log(data)
+        // 获取直播流的视频比例信息
+        ipcRenderer.send('get-media-metadata', [data.url, ''])
+        return data
+      }).then((data) => {
+        // 更新直播间名称
+        ipcRenderer.invoke('get-room-info', [platformTab, [roomId]]).then((roomData) => {
+          if (roomData) {
+            this.roomName = roomData[0].room_name
+          }
+        })
+        return data
+      }).then((data) => {
+        // 重载清晰度列表
+        ipcRenderer.invoke('get-live-qn-list', [platformTab, roomId]).then((list) => {
+          this.qnList = list
+        })
+        return data
+      }).then((data) => {
+        // 重载播放器
         let liveUrl = data.url
         this.currentQn = data.rate
-
         const player = toRaw(this.player)
         let liveUrlType = 'application/x-mpegURL' // hls
         if (liveUrl.indexOf('.flv') !== -1) {
@@ -257,12 +275,8 @@ export default defineComponent({
         })
         console.log("liveUrl = " + liveUrl)
         console.log("liveUrlType = " + liveUrlType)
-        ipcRenderer.invoke('get-room-info', [platformTab, [roomId]]).then((data) => {
-          if (data) {
-            this.roomName = data[0].room_name
-          }
-        })
       }).then(() => {
+        // 重载弹幕播放模块
         if (this.danmuWebsocket) {
           console.log("发现已经存在danmakuRef对象，准备清除")
           this.$refs.danmakuRef.stop()
@@ -270,15 +284,6 @@ export default defineComponent({
           this.danmuWebsocket = null
         }
         this.reflushDanmakuInfo(platformTab, roomId)
-      }).then(() => {
-        // 获取清晰度列表
-        ipcRenderer.invoke('get-live-qn-list', [platformTab, roomId]).then((data) => {
-          console.log(data)
-          this.qnList = data
-
-          console.log('当前清晰度, rate = ' + this.currentQn)
-
-        })
       })
     }
   },
@@ -352,6 +357,18 @@ export default defineComponent({
     })
     ipcRenderer.on('mouse-on-video-window', (event, args) => {
       this.videoShowClass = 'show-video-ctrl'
+    })
+    // 监听直播流ffmpeg的信息
+    ipcRenderer.on('get-media-metadata-reply', (event, args) => {
+      // console.log('监听直播流ffmpeg的信息')
+      // console.log(args)
+      const data = args[0].data
+      // console.log(data.display_aspect_ratio)
+      if (data.width && data.height) {
+        let ratio = data.width + ":" + data.height
+        // 改变窗口比例
+        ipcRenderer.send('video-window-resize', [ratio])
+      }
     })
     // 改变窗口大小后要重新加载弹幕的弹道
     ipcRenderer.on('video-window-resize', (event, args) => {

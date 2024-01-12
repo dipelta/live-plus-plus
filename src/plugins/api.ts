@@ -247,7 +247,6 @@ class Api {
     if (rate !== null) {
       url += "&rate=" + rate
     }
-    console.log(url)
     return await this.sendGet(url);
   }
 
@@ -260,6 +259,16 @@ class Api {
     const platformType = this.getPlatformType(parseInt(platformTab))
     const url = "/stream-source/qn-list?" + "room_id=" + roomId + "&platform_type=" + platformType
     return await this.sendGet(url);
+  }
+
+  /**
+   * 获取直播流的ffmpeg metedata
+   * @param liveUrl
+   * @param keyName
+   */
+  public async mediaMetadata(liveUrl, keyName) {
+    const url = "/stream-source/media-metadata"
+    return await this.sendPost(url, {live_url: liveUrl, key_name: keyName});
   }
 
   /**

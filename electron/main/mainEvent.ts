@@ -4,7 +4,7 @@ import db from "../../src/plugins/db";
 import {api, apiResponse} from "../../src/plugins/api";
 import IpcMainEvent = Electron.IpcMainEvent;
 import {autoUpdater} from "electron-updater";
-import {log} from "electron-log";
+import videoConfig from "../conf/video";
 
 class MainEvent {
 
@@ -252,6 +252,48 @@ class MainEvent {
     ipcMain.on('reflush-live-list-over', function (event: IpcMainEvent, args: any[]) {
       const mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
       mainWindow.webContents.send('reflush-live-list-over-reply', [])
+    })
+
+    ipcMain.on('get-media-metadata', async function (event: IpcMainEvent, args: any[]) {
+      let liveUrl = args[0]
+      let keyName = args[1]
+      const videoWindow = window.getWindowByName(window.VIDEO_WINDOW_NAME)
+      const data = await api.mediaMetadata(liveUrl, keyName)
+      videoWindow.webContents.send('get-media-metadata-reply', [data])
+    })
+
+    // 改变窗口比例
+    ipcMain.on('video-window-resize', async function (event: IpcMainEvent, args: any[]) {
+      // console.log('video-window-resize')
+      if (args.hasOwnProperty(0)) {
+        let display_aspect_ratio = args[0]
+        if (display_aspect_ratio) {
+          // console.log(display_aspect_ratio)
+          const videoWindow = window.getWindowByName(window.VIDEO_WINDOW_NAME)
+          const videoConf = videoConfig.getWindowConf()
+          const defaultWidth = videoConf.width
+          // const defaultHeight = videoConf.height
+          const defaultW = 16
+          // const defaultH = 9
+          let display = display_aspect_ratio.split(":");
+          let defaultUnit = defaultWidth / defaultW
+          let newWidth = defaultUnit * display[0]
+          let newHeight = defaultUnit * display[1]
+          // 宽度超过了960，则按960的标准计算高度
+          if (newWidth >= 960 && parseInt(display[0]) > parseInt(display[1])) {
+            // console.log('change-1')
+            newWidth = 960
+            newHeight = newWidth * display[1] / display[0]
+          } else if (parseInt(display[1]) > parseInt(display[0])) {
+            // console.log('change-2')
+            newHeight = 960
+            newWidth = newHeight * display[0] / display[1]
+          }
+          // console.log('newWidth = ' + newWidth)
+          // console.log('newHeight = ' + newHeight)
+          videoWindow.setSize(Math.round(newWidth), Math.round(newHeight))
+        }
+      }
     })
 
     ipcMain.handle('get-app-config', async function (event: IpcMainEvent, args: any[]) {
