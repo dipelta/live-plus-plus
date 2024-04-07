@@ -289,17 +289,22 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.flushBindInfo()
+    const self = this;
 
-    ipcRenderer.invoke('get-app-config', []).then((appConfig) => {
-      this.appConfig.auto_show_danmaku = this.appConfigEnum.auto_show_danmaku[appConfig.auto_show_danmaku]
-      this.appConfig.main_window_close_event = this.appConfigEnum.main_window_close_event[appConfig.main_window_close_event]
-      this.appConfig.video_replay_event = this.appConfigEnum.video_replay_event[appConfig.video_replay_event]
-    })
+    setTimeout(() => {
+      self.flushBindInfo()
 
-    ipcRenderer.invoke('get-app-version').then((ver) => {
-      this.appVersion = ver
-    })
+      ipcRenderer.invoke('get-app-config', []).then((appConfig) => {
+        self.appConfig.auto_show_danmaku = self.appConfigEnum.auto_show_danmaku[appConfig.auto_show_danmaku]
+        self.appConfig.main_window_close_event = self.appConfigEnum.main_window_close_event[appConfig.main_window_close_event]
+        self.appConfig.video_replay_event = self.appConfigEnum.video_replay_event[appConfig.video_replay_event]
+      })
+
+      ipcRenderer.invoke('get-app-version').then((ver) => {
+        self.appVersion = ver
+      })
+    }, 3000);
+
 
   },
   watch: {

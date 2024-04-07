@@ -1,9 +1,5 @@
 import axios from "axios";
 
-const {app} = require('electron');
-
-// const appVersion = app.getVersion()
-
 export class ApiResponse {
   code: number
   msg: string
@@ -23,7 +19,7 @@ class Api {
     })
     // 配置拦截器，白话：use 给请求之前做的事，可以是多件，可以 use 多次
     http.interceptors.request.use((config) => {
-      config.headers['version'] = app.getVersion();
+      config.headers['version'] = process.env.APP_VERSION;
       return config
     });
     http.interceptors.response.use(function (response) {
