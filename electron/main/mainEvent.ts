@@ -171,6 +171,7 @@ class MainEvent {
      * 获取所有平台的关注数据
      */
     ipcMain.handle('get-all-follow', async function (event: IpcMainEvent, args: any[]) {
+      console.log('get-all-follow')
       const clientCode = db.getLocalClientCode()
       const isBind = await api.isBindEmail(clientCode)
       if (isBind) {

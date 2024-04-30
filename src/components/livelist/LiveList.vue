@@ -150,6 +150,7 @@ export default defineComponent({
       })
     },
     reflushLiveList() {
+      console.log("reflushLiveList")
       const self = this
       ipcRenderer.invoke('get-all-follow', []).then(function (follows) {
         ipcRenderer.invoke('get-multi-room-info', [0, follows.douyu]).then(function (data) {
