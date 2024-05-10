@@ -92,6 +92,7 @@ export default defineComponent({
   props: ['platformTab'],
   data() {
     return {
+      reflushCountFlag: false,
       liveList: [],
       livePlatformItems: mainConfig.getLivePlatformItems(),
     }
@@ -177,13 +178,24 @@ export default defineComponent({
   },
   mounted() {
     const self = this
+    ipcRenderer.on('reflush-live-list-reply', function (event, args) {
+      self.reflushCountFlag = true
+      self.reflushLiveList()
+    })
     for (let i = 0; i < 3; i++) {
       this.liveList.push([])
     }
-    ipcRenderer.send('reflush-live-list', [])
-    ipcRenderer.on('reflush-live-list-reply', function (event, args) {
-      self.reflushLiveList()
-    })
+
+    const interval = setInterval(function () {
+      if (self.reflushCountFlag === false) {
+        console.log('interval reflush-live-list')
+        ipcRenderer.send('reflush-live-list', [])
+      } else {
+        console.log('close interval')
+        clearInterval(interval)
+      }
+    }, 1000);
+
     setInterval(function () {
       ipcRenderer.send('reflush-live-list', [])
     }, 1000 * 60)

@@ -5,6 +5,7 @@ import {api, apiResponse} from "../../src/plugins/api";
 import IpcMainEvent = Electron.IpcMainEvent;
 import {autoUpdater} from "electron-updater";
 import videoConfig from "../conf/video";
+import logger from "../../src/plugins/log"
 
 class MainEvent {
 
@@ -246,6 +247,7 @@ class MainEvent {
     })
 
     ipcMain.on('reflush-live-list', function (event: IpcMainEvent, args: any[]) {
+      logger.info("reflush-live-list");
       const mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
       mainWindow.webContents.send('reflush-live-list-reply', [])
     })
