@@ -5,72 +5,73 @@
 
         <v-list style="padding-top: 0;padding-bottom: 0;background: #fff0;">
           <div v-for="(room, index) in liveList[tabIndex]" :key="index" style="">
-            <!--            <v-divider v-if="index !== 0"></v-divider>-->
 
-            <v-list-item
-                @click.left.prevent="openVideo(tabIndex, room)"
-                @click.right.prevent="switchExtend(tabIndex, room)"
-                height="60px"
-                :key="room.room_id"
-                :prepend-avatar="room.anchor_avatar">
-              <v-list-item-title style="font-size: 15px">
-                <template v-if="room.is_live === 1 && room.is_loop === 0">
-                  <v-icon size="20" style="margin-top: -4px" color="green">mdi-television-classic</v-icon>
-                </template>
-                <template
-                    v-if="(room.is_live === 0 && room.is_loop === 1) || (room.is_live === 1 && room.is_loop === 1)">
-                  <v-icon size="24" style="margin-top: -2px" color="#eaa400">mdi-video-outline</v-icon>
-                </template>
-                <template v-if="room.is_live === 0 && room.is_loop === 0">
-                  <v-icon size="20" style="margin-top: -5px" color="red">mdi-television-classic-off</v-icon>
-                </template>
-                {{ room.room_name }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ room.anchor_name }}
-              </v-list-item-subtitle>
-              <template v-slot:append style="width: 100px">
-                <div style="margin-right: 10px">
-                  <v-row style="float: right;margin-top: -10px">
+            <template v-if="room.room_id">
+              <v-list-item
+                  @click.left.prevent="openVideo(tabIndex, room)"
+                  @click.right.prevent="switchExtend(tabIndex, room)"
+                  height="60px"
+                  :key="room.room_id"
+                  :prepend-avatar="room.anchor_avatar">
+                <v-list-item-title style="font-size: 15px">
+                  <template v-if="room.is_live === 1 && room.is_loop === 0">
+                    <v-icon size="20" style="margin-top: -4px" color="green">mdi-television-classic</v-icon>
+                  </template>
+                  <template
+                      v-if="(room.is_live === 0 && room.is_loop === 1) || (room.is_live === 1 && room.is_loop === 1)">
+                    <v-icon size="24" style="margin-top: -2px" color="#eaa400">mdi-video-outline</v-icon>
+                  </template>
+                  <template v-if="room.is_live === 0 && room.is_loop === 0">
+                    <v-icon size="20" style="margin-top: -5px" color="red">mdi-television-classic-off</v-icon>
+                  </template>
+                  {{ room.room_name }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ room.anchor_name }}
+                </v-list-item-subtitle>
+                <template v-slot:append style="width: 100px">
+                  <div style="margin-right: 10px">
+                    <v-row style="float: right;margin-top: -10px">
 
-                    <template v-if="room.showExtend === 1">
-                      <v-btn variant="outlined" size="x-small" color="blue" width="55"
-                             @click.stop="getStreamSourceUrl(tabIndex, room)">
-                        直播源
-                      </v-btn>
-                    </template>
-                    <template v-else>
+                      <template v-if="room.showExtend === 1">
+                        <v-btn variant="outlined" size="x-small" color="blue" width="55"
+                               @click.stop="getStreamSourceUrl(tabIndex, room)">
+                          直播源
+                        </v-btn>
+                      </template>
+                      <template v-else>
                       <span v-if="room.is_live === 1 || room.is_loop === 1"
                             style="font-size: 12px">
                         <v-icon color="red" size="15"
                                 style="margin-top: -3px;margin-right: -3px">mdi-fire</v-icon>
                           {{ room.watch_num_label }}
                       </span>
-                    </template>
+                      </template>
 
 
-                  </v-row>
-                  <v-row style="margin-top: 12px;float: right">
+                    </v-row>
+                    <v-row style="margin-top: 12px;float: right">
 
-                    <template v-if="room.showExtend === 1">
-                      <v-btn variant="outlined" size="x-small" color="red" width="55"
-                             @click.stop="delFollow(tabIndex, room)">
-                        取消关注
-                      </v-btn>
-                    </template>
-                    <template v-else>
+                      <template v-if="room.showExtend === 1">
+                        <v-btn variant="outlined" size="x-small" color="red" width="55"
+                               @click.stop="delFollow(tabIndex, room)">
+                          取消关注
+                        </v-btn>
+                      </template>
+                      <template v-else>
                       <span v-if="room.is_live === 1 || room.is_loop === 1" style="font-size: 12px">
                         <v-icon color="blue" size="14" style="margin-top: -3px;margin-right: -3px">mdi-clock-time-eight-outline</v-icon>
                           {{ room.live_time_label }}
                       </span>
-                    </template>
+                      </template>
 
 
-                  </v-row>
-                </div>
-              </template>
-            </v-list-item>
-            <v-divider></v-divider>
+                    </v-row>
+                  </div>
+                </template>
+              </v-list-item>
+              <v-divider></v-divider>
+            </template>
 
           </div>
         </v-list>
