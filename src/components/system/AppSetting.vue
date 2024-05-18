@@ -1,8 +1,8 @@
 <template>
-  <v-bottom-navigation style="border-radius: 0 0 5px 5px;box-shadow:none" :active="openSettingStatus" height="440px" :multiple="true">
+  <v-bottom-navigation style="border-radius: 0 0 5px 5px;box-shadow:none" :active="openSettingStatus" height="440" :multiple="true">
     <div id="app-setting" class="app-scrollbar">
       <v-row align="center" style="padding: 20px" id="emailGroup">
-        <h2 style=";margin-left: 12px">绑定设置
+        <h2 style="margin-left: 12px">绑定设置
           <span style="font-size: 12px;font-weight:400;margin-left: 5px">({{ bindEmail }})</span>
         </h2>
         <v-col cols="12" style="margin-top: 10px">

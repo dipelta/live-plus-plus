@@ -1,5 +1,5 @@
 <template>
-  <v-bottom-navigation style="border-radius: 0 0 5px 5px;box-shadow:none" :active="openAddLiveStatus" height="404px" :multiple="true" selected-class="followLiveBtn">
+  <v-bottom-navigation style="border-radius: 0 0 5px 5px;box-shadow:none" :active="openAddLiveStatus" height="404" :multiple="true" selected-class="followLiveBtn">
     <div id="add-live" class="app-scrollbar">
       <v-window :model-value="platformTab">
         <v-window-item v-for="(item, tabIndex) in livePlatformItems" :key="tabIndex" :value="tabIndex">
