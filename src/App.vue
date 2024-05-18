@@ -2,9 +2,9 @@
   <v-app id="vapp">
     <router-view id="route-view"></router-view>
     <v-snackbar id="alert-msg" v-model="showMsg" multi-line min-height="0"
-                location="center" :timeout="1500" :color="msgColor"
-                style="top: -100px;position: fixed;height: 400px;">
-        {{ msgContent }}
+                location="top" :timeout="1500" :color="msgColor"
+                style="top: 200px;position: fixed;">
+        <p style="word-wrap: break-word;">{{ msgContent }}</p>
     </v-snackbar>
   </v-app>
 </template>
