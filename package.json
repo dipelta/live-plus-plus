@@ -1,6 +1,6 @@
 {
   "name": "live-plus-plus",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "private": true,
   "description": "live++",
   "author": "dipelta <zha_zha@outlook.com>",
@@ -81,7 +81,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://api.live.dipelta.cn/app_releases/"
+        "url": "https://api.dipelta.cn/live/public/app_releases/"
       }
     ],
     "win": {
