@@ -78,10 +78,6 @@ export default defineComponent({
       let rate = item.rate
       const platformTab = parseInt(tool.urlGetParams('platform'))
       const roomId = parseInt(tool.urlGetParams('room_id'))
-      // console.log('即将切换清晰度:')
-      // console.log('rate:' + rate)
-      // console.log('platformTab:' + platformTab)
-      // console.log('roomId:' + roomId)
       this.reloadVideoPlayer(platformTab, roomId, rate)
     },
     togglePlay() {
@@ -333,6 +329,14 @@ export default defineComponent({
     // const roomId = parseInt(tool.urlGetParams('room_id'))
 
     this.reflushRoomInfo(this.currentPlatformTab, this.currentRoomId, this.currentQn)
+
+    if (this.currentPlatformTab === 2) {
+      setInterval(() => {
+        console.log("huya room info reflush")
+         this.reloadVideoPlayer(this.currentPlatformTab, this.currentRoomId, this.currentQn)
+      }, 25 * 1000)
+    }
+
 
     ipcRenderer.on('change-video-info', (event, args) => {
       console.log('change-video-info')
