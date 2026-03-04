@@ -8,9 +8,10 @@ export class ApiResponse {
 
 class Api {
 
-  // private baseURL = 'https://api.dipelta.cn/live_app_api/'
+  private baseURL = 'https://api.dipelta.cn/live_app_api/'
 
-  private baseURL = 'http://127.0.0.1:8666/live_app_api/'
+  // private baseURL = 'http://127.0.0.1:8666/live_app_api/'
+  // private baseURL = 'http://10.0.1.150:8666/live_app_api/'
 
   private http() {
     let http = axios.create({
