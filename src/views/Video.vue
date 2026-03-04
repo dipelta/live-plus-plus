@@ -243,11 +243,9 @@ export default defineComponent({
     },
     reflushRoomInfo(platformTab, roomId, rate) {
 
-      console.log(this.currentRoomId)
-      console.log(roomId)
-      if (this.currentRoomId != roomId) {
-        ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
-      }
+      // if (this.currentRoomId != roomId) {
+        // ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
+      // }
 
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId, rate]).then((data) => {
         // console.log(data)
@@ -491,11 +489,6 @@ export default defineComponent({
 .hide-video-danmaku {
   z-index: -1 !important;
   display: none !important;
-}
-
-.show-video-ctrl {
-  /*z-index: -1 !important;*/
-  /*display: none !important;*/
 }
 
 </style>
