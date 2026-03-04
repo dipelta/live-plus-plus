@@ -1,16 +1,16 @@
 import axios from "axios";
 
 export class ApiResponse {
-  code: number
-  msg: string
-  data: any
+  code: number = 0
+  msg: string = ''
+  data: any = null
 }
 
 class Api {
 
-  private baseURL = 'https://api.dipelta.cn/live_app_api/'
+  // private baseURL = 'https://api.dipelta.cn/live_app_api/'
 
-  // private baseURL = 'http://api.live.me/'
+  private baseURL = 'http://127.0.0.1:8666/live_app_api/'
 
   private http() {
     let http = axios.create({
@@ -57,39 +57,37 @@ class Api {
     }
   }
 
-  public async sendGet(url: string) {
-    let result: ApiResponse;
-    await this.http().get(url).then(function (response) {
-      result = response.data
-    }).catch(function (error) {
+  public async sendGet(url: string): Promise<ApiResponse> {
+    try {
+      const response = await this.http().get(url)
+      return response.data as ApiResponse
+    } catch (error: any) {
       console.log(error)
       console.log("[GET]URL = " + url)
-      console.log(error.code)
-      console.log(error.msg)
-      console.log(error.message)
-      result = new ApiResponse()
-      result.code = error.code
-      result.msg = error.msg ? error.msg : error.message
+      console.log(error?.code)
+      console.log(error?.msg)
+      console.log(error?.message)
+      const result = new ApiResponse()
+      result.code = error?.code ?? 502
+      result.msg = error?.msg ? error.msg : (error?.message ?? '请求失败')
       result.data = []
-    })
-    return result
+      return result
+    }
   }
 
-  public async sendPost(url: string, data) {
-    let result: ApiResponse;
-    await this.http().post(url, data).then(function (response) {
-      result = response.data
-    }).catch(function (error) {
+  public async sendPost(url: string, data): Promise<ApiResponse> {
+    try {
+      const response = await this.http().post(url, data)
+      return response.data as ApiResponse
+    } catch (error: any) {
       console.log('请求出错')
       console.log(error)
-      result = new ApiResponse()
-      if (error.code !== 5001) {
-        result.code = 502
-      }
-      result.msg = error.msg ? error.msg : error.message
+      const result = new ApiResponse()
+      result.code = error?.code === 5001 ? 5001 : 502
+      result.msg = error?.msg ? error.msg : (error?.message ?? '请求失败')
       result.data = []
-    })
-    return result
+      return result
+    }
   }
 
   /**
@@ -171,14 +169,14 @@ class Api {
    */
   public async roomInfo(platformTab, roomId) {
     const platformType = this.getPlatformType(platformTab)
-    let request = []
+    let request: Array<Promise<any>> = []
     for (let i = 0; i < roomId.length; i++) {
       const url = this.baseURL + "anchor/data?" + "room_id=" + roomId[i] + "&platform_type=" + platformType
       request.push(axios({
         url: url
       }))
     }
-    let datas = []
+    let datas: any[] = []
     await axios.all(request).then(axios.spread((...res) => {
       for (let i = 0; i < res.length; i++) {
         if (res[i].data.code === 200) {
@@ -240,7 +238,7 @@ class Api {
   public async liveUrl(platformTab, roomId, rate) {
     const platformType = this.getPlatformType(parseInt(platformTab))
     let url = "/stream-source/data?" + "room_id=" + roomId + "&platform_type=" + platformType
-    if (rate !== null) {
+    if (rate !== null && rate !== undefined && rate !== '') {
       url += "&rate=" + rate
     }
     return await this.sendGet(url);

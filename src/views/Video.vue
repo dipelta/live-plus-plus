@@ -209,34 +209,46 @@ export default defineComponent({
       }
     },
     reloadVideoPlayer(newplatformTab, newRoomId, rate) {
-      this.player.dispose();
       this.qnList = [];
-      this.$refs.videoPlayer.innerHTML = `<video id="live-player" class="video-js" style="border-radius: 5px"></video>`
-      let playerOptions = {
-        bigPlayButton: false,
-        textTrackDisplay: false,
-        posterImage: true,
-        errorDisplay: false,
-        autoplay: true,
-        fluid: true,
-        flvjs: {
-          mediaDataSource: {
-            isLive: true,
-            cors: false,
-            withCredentials: false,
-          },
-        },
-      }
-      this.player = videojs("live-player", playerOptions, function () {
-        // console.log("xxxx")
-      });
       this.$nextTick(() => {
-        // console.log('load')
         this.reflushRoomInfo(newplatformTab, newRoomId, rate)
       })
     },
+    switchPlayerSource(liveUrl, liveUrlType) {
+      const player = toRaw(this.player)
+      if (!player) {
+        return
+      }
+      try {
+        player.pause()
+        if (player.reset) {
+          player.reset()
+        }
+      } catch (error) {
+        console.log('player reset failed', error)
+      }
+
+      player.src({
+        src: liveUrl,
+        type: liveUrlType
+      })
+      player.load()
+      player.play().catch((error) => {
+        console.log('player play failed, retry once', error)
+        setTimeout(() => {
+          player.play().catch(() => {
+          })
+        }, 300)
+      })
+    },
     reflushRoomInfo(platformTab, roomId, rate) {
-      ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
+
+      console.log(this.currentRoomId)
+      console.log(roomId)
+      if (this.currentRoomId != roomId) {
+        ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
+      }
+
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId, rate]).then((data) => {
         // console.log(data)
         // 获取直播流的视频比例信息
@@ -260,18 +272,19 @@ export default defineComponent({
         // 重载播放器
         let liveUrl = data.url
         this.currentQn = data.rate
-        const player = toRaw(this.player)
         let liveUrlType = 'application/x-mpegURL' // hls
         if (liveUrl.indexOf('.flv') !== -1) {
           liveUrlType = 'video/x-flv'
         }
-        player.src({
-          src: liveUrl,
-          type: liveUrlType
-        })
+        if (liveUrl !== this.liveUrl) {
+          this.switchPlayerSource(liveUrl, liveUrlType)
+          this.liveUrl = liveUrl
+        }
+       
         console.log("liveUrl = " + liveUrl)
         console.log("liveUrlType = " + liveUrlType)
       }).then(() => {
+        // this.player.play()
         // 重载弹幕播放模块
         if (this.danmuWebsocket) {
           console.log("发现已经存在danmakuRef对象，准备清除")
@@ -330,13 +343,13 @@ export default defineComponent({
 
     this.reflushRoomInfo(this.currentPlatformTab, this.currentRoomId, this.currentQn)
 
-    if (this.currentPlatformTab === 2) {
-      setInterval(() => {
+    
+    setInterval(() => {
+      if (this.currentPlatformTab === 2) {
         console.log("huya room info reflush")
-         this.reloadVideoPlayer(this.currentPlatformTab, this.currentRoomId, this.currentQn)
-      }, 25 * 1000)
-    }
-
+        this.reloadVideoPlayer(this.currentPlatformTab, this.currentRoomId, this.currentQn)
+      }
+    }, 25 * 1000)
 
     ipcRenderer.on('change-video-info', (event, args) => {
       console.log('change-video-info')
