@@ -327,27 +327,29 @@ export default defineComponent({
     this.player = videojs("live-player", this.playerOptions, function () {
     });
 
-    const platformTab = parseInt(tool.urlGetParams('platform'))
-    const roomId = parseInt(tool.urlGetParams('room_id'))
+    this.currentPlatformTab = parseInt(tool.urlGetParams('platform'))
+    this.currentRoomId = parseInt(tool.urlGetParams('room_id'))
+    // const platformTab = parseInt(tool.urlGetParams('platform'))
+    // const roomId = parseInt(tool.urlGetParams('room_id'))
 
-    this.reflushRoomInfo(platformTab, roomId, this.currentQn)
+    this.reflushRoomInfo(this.currentPlatformTab, this.currentRoomId, this.currentQn)
 
     ipcRenderer.on('change-video-info', (event, args) => {
       console.log('change-video-info')
-      if (platformTab !== parseInt(args[1]) || roomId !== parseInt(args[2])) {
-        const newplatformTab = parseInt(args[1])
-        const newRoomId = parseInt(args[2])
+      if (this.currentPlatformTab !== parseInt(args[1]) || this.currentRoomId !== parseInt(args[2])) {
+        this.currentPlatformTab = parseInt(args[1])
+        this.currentRoomId = parseInt(args[2])
         this.$router.push({path: '/video', query: {platform: parseInt(args[1]), room_id: parseInt(args[2])}});
         console.log(window.location.href)
         console.log(this.player)
         setTimeout(() => {
-          self.reloadVideoPlayer(newplatformTab, newRoomId, null)
+          self.reloadVideoPlayer(this.currentPlatformTab, this.currentRoomId, null)
         }, 200)
       }
     })
     ipcRenderer.on('ws-danmaku-connect-error-notice', (event, args) => {
       setTimeout(() => {
-        this.reflushDanmakuInfo(platformTab, roomId)
+        this.reflushDanmakuInfo(this.currentPlatformTab, this.currentRoomId)
       }, 3000)
     })
     ipcRenderer.on('mouse-leave-video-window', (event, args) => {
@@ -395,6 +397,8 @@ export default defineComponent({
   },
   data() {
     return {
+      platformTabPlatformId: 0,
+      currentRoomId: 0,
       qnList: [],
       currentQn: null, // 当前清晰度
       danmuQueue: [],
