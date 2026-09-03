@@ -53,6 +53,7 @@ class Bootstrap {
     autoUpdater.on('update-downloaded', () => {
       // 弹出确认更新窗口
       const mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
+      if (!mainWindow) return
       mainWindow.webContents.send('app-update-available', [])
     })
 
@@ -91,7 +92,7 @@ class Bootstrap {
         if (registerResult.code === 502) {
           msg = "哦豁，服务器蹦了，赶快联系作者吧：zha_zha@outlook.com"
         }
-        dialog.showMessageBox(null, {
+        dialog.showMessageBox({
           type: "error",
           title: "无法启动Live++",
           detail: msg,
@@ -111,7 +112,7 @@ class Bootstrap {
       if (loginResult.code === 502) {
         msg = "哦豁，服务器蹦了，赶快联系作者吧：zha_zha@outlook.com"
       }
-      dialog.showMessageBox(null, {
+      dialog.showMessageBox({
         type: "error",
         title: "无法启动Live++",
         detail: msg,
@@ -153,6 +154,7 @@ class Bootstrap {
       } else {
         mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
       }
+      if (!mainWindow) return
       mainWindow.show()
       if (window.isHasWindow(window.MAIN_WINDOW_NAME)) {
         const video = window.getWindowByName(window.VIDEO_WINDOW_NAME)

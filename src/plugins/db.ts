@@ -130,7 +130,7 @@ class DB {
     }
   }
 
-  public getAppConfig(key = null) {
+  public getAppConfig(key: string | null = null) {
     if (key === null) {
       return DB.lowdb.get('app_config').value()
     }

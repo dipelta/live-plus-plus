@@ -1,4 +1,4 @@
-import {BrowserWindow, screen, shell, ipcMain} from 'electron'
+import { BrowserWindow, screen, shell, ipcMain } from 'electron'
 import mainConfig from '../conf/main';
 import videoConfig from '../conf/video';
 
@@ -43,19 +43,19 @@ class Window {
     })
 
     // Make all links open with the browser, not with the application
-    mainWindow.webContents.setWindowOpenHandler(({url}) => {
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
       if (url.startsWith('https:')) shell.openExternal(url)
-      return {action: 'deny'}
+      return { action: 'deny' }
     })
     require('@electron/remote/main').initialize()
     require('@electron/remote/main').enable(mainWindow.webContents)
 
     mainWindow.on('ready-to-show', () => {
-      mainWindow.show()
+      mainWindow!.show()
       // mainWindow.webContents.openDevTools()
     })
 
-    mainWindow.on('close', (event: Event) => {
+    mainWindow.on('close', () => {
       if (this.isHasWindow(this.MAIN_WINDOW_NAME)) {
         this.windowMap.delete(this.MAIN_WINDOW_NAME)
         mainWindow.destroy()
@@ -65,7 +65,7 @@ class Window {
     return mainWindow
   }
 
-  createVideoWindow(platformTab, roomId) {
+  createVideoWindow(platformTab: string, roomId: string) {
     console.log('创建video窗口')
     const videoConf = videoConfig.getWindowConf()
     const videoWindow = new BrowserWindow(videoConf)
@@ -79,7 +79,7 @@ class Window {
         hash: '#/video?platform=' + platformTab + "&room_id=" + roomId
       });
     }
-    let lastMousePosition = [];
+    let lastMousePosition: string[] = [];
     const mouseInterval = setInterval(() => {
       if (this.inSystemBar === false) {
         if (lastMousePosition.length >= 3) {
@@ -93,34 +93,33 @@ class Window {
       }
     }, 1000)
     videoWindow.on('ready-to-show', () => {
-      videoWindow.show()
+      videoWindow!.show()
       // videoWindow.webContents.openDevTools()
     })
-    videoWindow.on('close', (event: Event) => {
+    videoWindow.on('close', () => {
       if (this.isHasWindow(this.VIDEO_WINDOW_NAME)) {
         clearInterval(mouseInterval)
         this.windowMap.delete(this.VIDEO_WINDOW_NAME)
+        videoWindow.removeAllListeners()
+        videoWindow.webContents.removeAllListeners()
         videoWindow.destroy()
       }
     })
-    // videoWindow.webContents.on("before-input-event", (event, input) => {
-    //   console.log("使用了键盘" + input.key + "键");
-    // })
 
-    videoWindow.on("focus", (event: Event) => {
+    videoWindow.on("focus", () => {
       videoWindow.webContents.send('mouse-on-video-window', [])
     })
-    videoWindow.on("blur", (event: Event) => {
+    videoWindow.on("blur", () => {
       videoWindow.webContents.send('mouse-leave-video-window', [])
     })
-    videoWindow.on("will-resize", (event: Event) => {
+    videoWindow.on("will-resize", (event) => {
       // console.log("will-resize:" + videoWindow.getSize())
       // console.log("this.canMove:" + this.canMove)
       if (this.canMove) {
         event.preventDefault()
       }
     })
-    videoWindow.on("resize", (event: Event) => {
+    videoWindow.on("resize", () => {
       // console.log("resize:" + videoWindow.getSize())
       if (this.canMove) {
       } else {
@@ -129,19 +128,19 @@ class Window {
       }
       videoWindow.webContents.send('video-window-resize', [])
     })
-    videoWindow.webContents.on("input-event", (event, input) => {
+    videoWindow.webContents.on("input-event", (event, inputEvent) => {
       if (videoWindow.isFocused()) {
-        const {x, y} = screen.getCursorScreenPoint()
+        const { x, y } = screen.getCursorScreenPoint()
         this.mouseX = x
         this.mouseY = y
         const bounds = videoWindow.getBounds()
+        const input = inputEvent as Electron.MouseInputEvent
         // console.log(input, x, y, bounds);
-        // console.log(x, y, bounds);
         // console.log(videoWindow.getPosition());
         if (input.type === 'mouseLeave') {
           videoWindow.webContents.send('mouse-leave-video-window', [])
         } else if (input.type === 'mouseDown') {
-          if (input.modifiers[0] === 'leftbuttondown') {
+          if (input.button === 'left') {
             if (y >= bounds.y && y <= bounds.y + 24) {
               this.canMove = true
               this.mouseInWinX = x - bounds.x
@@ -165,7 +164,7 @@ class Window {
           } else {
             this.inSystemBar = false
           }
-          if (input.modifiers[0] === 'leftbuttondown') {
+          if (input.button === 'left') {
             if (this.canMove) {
               // videoWindow.setResizable(false)
               const newX = x - this.mouseInWinX
@@ -182,19 +181,19 @@ class Window {
   }
 
   showMain() {
-    let mainWindow
+    let mainWindow: BrowserWindow
     if (this.isHasWindow(this.MAIN_WINDOW_NAME)) {
-      mainWindow = this.getWindowByName(this.MAIN_WINDOW_NAME)
+      mainWindow = this.getWindowByName(this.MAIN_WINDOW_NAME)!
     } else {
       mainWindow = this.createMainWindow()
     }
     mainWindow.show()
   }
 
-  showVideo(platformTab, roomId) {
-    let videoWindow
+  showVideo(platformTab: string, roomId: string) {
+    let videoWindow: BrowserWindow
     if (this.isHasWindow(this.VIDEO_WINDOW_NAME)) {
-      videoWindow = this.getWindowByName(this.VIDEO_WINDOW_NAME)
+      videoWindow = this.getWindowByName(this.VIDEO_WINDOW_NAME)!
     } else {
       videoWindow = this.createVideoWindow(platformTab, roomId)
     }

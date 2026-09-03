@@ -3,6 +3,7 @@ import window from "./window";
 import db from "../../src/plugins/db";
 import {api, apiResponse} from "../../src/plugins/api";
 import IpcMainEvent = Electron.IpcMainEvent;
+import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent;
 import {autoUpdater} from "electron-updater";
 import videoConfig from "../conf/video";
 import logger from "../../src/plugins/log"
@@ -21,6 +22,7 @@ class MainEvent {
     ipcMain.on('window-close', function (event: IpcMainEvent, args: any[]) {
       const windowName = args[0]
       const win = window.getWindowByName(windowName)
+      if (!win) return
       if (windowName == window.MAIN_WINDOW_NAME) {
         // 读取配置
         const main_window_close_event = db.getAppConfig('main_window_close_event')
@@ -58,10 +60,11 @@ class MainEvent {
 
     ipcMain.on('ws-danmaku-connect-error', function (event: IpcMainEvent, args: any[]) {
       const videoWindow = window.getWindowByName(window.VIDEO_WINDOW_NAME)
+      if (!videoWindow) return
       videoWindow.webContents.send('ws-danmaku-connect-error-notice', [])
     })
 
-    ipcMain.handle('bind-email', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('bind-email', async function (event: IpcMainInvokeEvent, args: any[]) {
       const clientCode = db.getLocalClientCode()
       const email = args[0]
       const code = args[1]
@@ -97,12 +100,12 @@ class MainEvent {
       })
     })
 
-    ipcMain.handle('unbind-email', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('unbind-email', async function (event: IpcMainInvokeEvent, args: any[]) {
       const clientCode = db.getLocalClientCode()
       return await api.unbindEmail(clientCode)
     })
 
-    ipcMain.handle('get-bind-email', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-bind-email', async function (event: IpcMainInvokeEvent, args: any[]) {
       const clientCode = db.getLocalClientCode()
       return await api.getBindEmail(clientCode)
     })
@@ -110,7 +113,7 @@ class MainEvent {
     /**
      * 添加关注
      */
-    ipcMain.handle('add-follow', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('add-follow', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
       const clientCode = db.getLocalClientCode()
@@ -129,7 +132,7 @@ class MainEvent {
     /**
      * 取消关注
      */
-    ipcMain.handle('del-follow', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('del-follow', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
       console.log(platformTab, roomId)
@@ -149,12 +152,12 @@ class MainEvent {
     /**
      * 获取某个平台的关注数据
      */
-    ipcMain.handle('get-follow-by-platform', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-follow-by-platform', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       return db.getPlatformFollows(platformTab)
     })
 
-    ipcMain.handle('get-huya-chat-info', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-huya-chat-info', async function (event: IpcMainInvokeEvent, args: any[]) {
       const roomId = args[0]
       return await api.huyaChatInfo(roomId)
     })
@@ -162,7 +165,7 @@ class MainEvent {
     /**
      * 获取某个平台的关注数据
      */
-    ipcMain.handle('search-anchor-by-keyword', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('search-anchor-by-keyword', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const searchKeyWord = args[1]
       return await api.search(platformTab, searchKeyWord)
@@ -171,13 +174,13 @@ class MainEvent {
     /**
      * 获取所有平台的关注数据
      */
-    ipcMain.handle('get-all-follow', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-all-follow', async function (event: IpcMainInvokeEvent, args: any[]) {
       console.log('get-all-follow')
       const clientCode = db.getLocalClientCode()
       const isBind = await api.isBindEmail(clientCode)
       if (isBind) {
         // 直接从服务器上获取
-        let data = {douyu: [], bilibili: [], huya: []}
+        let data: {douyu: string[], bilibili: string[], huya: string[]} = {douyu: [], bilibili: [], huya: []}
         const allFollowsResponse = await api.followData(clientCode) as apiResponse
         if (allFollowsResponse.code === 200) {
           const allFollows = allFollowsResponse.data
@@ -196,14 +199,14 @@ class MainEvent {
       return db.getAllPlatformFollows()
     })
 
-    ipcMain.handle('get-room-info', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-room-info', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
-      const data = await api.roomInfo(platformTab, roomId) as apiResponse
+      const data = await api.roomInfo(platformTab, roomId)
       return data
     })
 
-    ipcMain.handle('get-multi-room-info', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-multi-room-info', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
       return await api.multiRoomInfo(platformTab, roomId) as apiResponse
@@ -212,13 +215,13 @@ class MainEvent {
     /**
      * 打开直播窗口
      */
-    ipcMain.handle('open-video', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('open-video', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
       window.showVideo(platformTab, roomId)
     })
 
-    ipcMain.handle('get-live-url-info', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-live-url-info', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
       const rate = args[2]
@@ -226,7 +229,7 @@ class MainEvent {
       return liveUrl.data
     })
 
-    ipcMain.handle('get-live-qn-list', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-live-qn-list', async function (event: IpcMainInvokeEvent, args: any[]) {
       const platformTab = args[0]
       const roomId = args[1]
       const liveUrl = await api.liveQnList(platformTab, roomId) as apiResponse
@@ -243,17 +246,20 @@ class MainEvent {
       const roomId = args[1]
       const roomName = args[2]
       const videoWindow = window.getWindowByName(window.VIDEO_WINDOW_NAME)
+      if (!videoWindow) return
       videoWindow.webContents.send('change-video-info', [roomName, platformTab, roomId])
     })
 
     ipcMain.on('reflush-live-list', function (event: IpcMainEvent, args: any[]) {
       logger.info("reflush-live-list");
       const mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
+      if (!mainWindow) return
       mainWindow.webContents.send('reflush-live-list-reply', [])
     })
 
     ipcMain.on('reflush-live-list-over', function (event: IpcMainEvent, args: any[]) {
       const mainWindow = window.getWindowByName(window.MAIN_WINDOW_NAME)
+      if (!mainWindow) return
       mainWindow.webContents.send('reflush-live-list-over-reply', [])
     })
 
@@ -261,6 +267,7 @@ class MainEvent {
       let liveUrl = args[0]
       let keyName = args[1]
       const videoWindow = window.getWindowByName(window.VIDEO_WINDOW_NAME)
+      if (!videoWindow) return
       const data = await api.mediaMetadata(liveUrl, keyName)
       videoWindow.webContents.send('get-media-metadata-reply', [data])
     })
@@ -273,6 +280,7 @@ class MainEvent {
         if (display_aspect_ratio) {
           // console.log(display_aspect_ratio)
           const videoWindow = window.getWindowByName(window.VIDEO_WINDOW_NAME)
+          if (!videoWindow) return
           const videoConf = videoConfig.getWindowConf()
           const defaultWidth = videoConf.width
           // const defaultHeight = videoConf.height
@@ -299,11 +307,11 @@ class MainEvent {
       }
     })
 
-    ipcMain.handle('get-app-config', async function (event: IpcMainEvent, args: any[]) {
+    ipcMain.handle('get-app-config', async function (event: IpcMainInvokeEvent, args: any[]) {
       return db.getAppConfig()
     })
 
-    ipcMain.handle('get-app-version', (event: IpcMainEvent, args: any[]) =>{
+    ipcMain.handle('get-app-version', (event: IpcMainInvokeEvent, args: any[]) =>{
       return process.env.APP_VERSION
     })
 
