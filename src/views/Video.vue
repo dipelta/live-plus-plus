@@ -1,9 +1,9 @@
 <template>
   <v-container>
     <div id="video-container" style="border-radius: 5px">
-      <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName"/>
-      <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku"
-                   speeds="100" :extraStyle="extraStyle" fontSize="20">
+      <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName" />
+      <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku" speeds="100" :extraStyle="extraStyle"
+        fontSize="20">
       </vue-danmaku>
       <div ref="videoPlayer" style="height:100%; width:100%; border-radius: 5px">
         <video id="live-player" class="video-js" style="border-radius: 5px"></video>
@@ -13,34 +13,26 @@
           <v-col>
             <v-row align="center" style="width: 90px;margin-left: 0">
               <v-icon color="white" style="font-size: 20px;margin-top: -15px;">mdi-volume-high</v-icon>
-              <v-slider color="blue" v-model="volume" thumb-color="white"
-                        style="margin-top: 7px;"></v-slider>
+              <v-slider color="blue" v-model="volume" thumb-color="white" style="margin-top: 7px;"></v-slider>
             </v-row>
           </v-col>
           <v-col style="vertical-align: center">
-            <v-btn color="white" variant="text" :icon="videoPlayIcon"
-                   flat :ripple="false"
-                   style="font-size: 30px;margin-top: -20px"
-                   @click="togglePlay()"
-            ></v-btn>
+            <v-btn color="white" variant="text" :icon="videoPlayIcon" flat :ripple="false"
+              style="font-size: 30px;margin-top: -20px" @click="togglePlay()"></v-btn>
           </v-col>
           <v-col>
-            <v-btn :color="danmakuBtnColor" variant="text" icon="mdi-card-bulleted-outline"
-                   flat :ripple="false"
-                   style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 30px"
-                   @click="toggleDanmaku()"></v-btn>
-            <v-btn :color="fullScreenColor" variant="text" icon="mdi-fullscreen"
-                   flat :ripple="false"
-                   style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 20px"
-                   @click="toggleFullScreen()"></v-btn>
+            <v-btn :color="danmakuBtnColor" variant="text" icon="mdi-card-bulleted-outline" flat :ripple="false"
+              style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 30px" @click="toggleDanmaku()"></v-btn>
+            <v-btn :color="fullScreenColor" variant="text" icon="mdi-fullscreen" flat :ripple="false"
+              style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 20px"
+              @click="toggleFullScreen()"></v-btn>
           </v-col>
         </v-row>
       </v-container>
       <v-container id="video-switch-qn-bar" :class="videoShowClass">
         <v-list style="border-radius:5px; padding-top: 0;padding-bottom: 0;background: rgba(66, 66, 66, 0.9);">
           <v-list-item v-for="(item, index) in qnList" :key="index"
-                       style="padding: 5px;text-align: center;min-height: 0;color: white"
-                       @click.left.prevent="changeLiveQn(item)">
+            style="padding: 5px;text-align: center;min-height: 0;color: white" @click.left.prevent="changeLiveQn(item)">
             <template v-if="parseInt(item.rate) === parseInt(this.currentQn)">
               <v-list-item-title style="font-size: 12px; color: #FF8A65">{{ item.name }}</v-list-item-title>
             </template>
@@ -55,13 +47,13 @@
 </template>
 
 <script>
-import {defineComponent, ref, toRaw} from "vue";
+import { defineComponent, ref, toRaw } from "vue";
 import VideoSystemBar from '../components/video/VideoSystemBar.vue'
 import douyu from "../../src/plugins/danmaku/douyu";
 import bilibili from "../../src/plugins/danmaku/bilibili";
 import huya from "../../src/plugins/danmaku/huya";
 import videojs from 'video.js';
-import {ipcRenderer} from "electron";
+import { ipcRenderer } from "electron";
 import 'videojs-flvjs-es6'
 import vueDanmaku from 'vue3-danmaku'
 import tool from "../plugins/tool";
@@ -214,6 +206,29 @@ export default defineComponent({
         this.reflushRoomInfo(newplatformTab, newRoomId, rate)
       })
     },
+    // 刷新流地址（不重新加载播放器，仅切换播放源）
+    refreshStreamUrl() {
+      console.log('Refreshing stream URL...')
+      ipcRenderer.invoke('get-live-url-info', [this.currentPlatformTab, this.currentRoomId, this.currentQn])
+        .then((data) => {
+          if (data && data.url) {
+            let liveUrl = data.url
+            let liveUrlType = 'application/x-mpegURL'
+            if (liveUrl.indexOf('.flv') !== -1) {
+              liveUrlType = 'video/x-flv'
+            }
+            console.log('New stream URL:', liveUrl)
+            this.switchPlayerSource(liveUrl, liveUrlType)
+            this.liveUrl = liveUrl
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to refresh stream URL:', error)
+          setTimeout(() => {
+            this.reloadVideoPlayer(this.currentPlatformTab, this.currentRoomId, this.currentQn)
+          }, 2000)
+        })
+    },
     switchPlayerSource(liveUrl, liveUrlType) {
       const player = toRaw(this.player)
       if (!player) {
@@ -244,7 +259,7 @@ export default defineComponent({
     reflushRoomInfo(platformTab, roomId, rate) {
 
       // if (this.currentRoomId != roomId) {
-        // ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
+      // ipcRenderer.send('alert-msg', ['brown', '直播加载中...'])
       // }
 
       ipcRenderer.invoke('get-live-url-info', [platformTab, roomId, rate]).then((data) => {
@@ -278,7 +293,7 @@ export default defineComponent({
           this.switchPlayerSource(liveUrl, liveUrlType)
           this.liveUrl = liveUrl
         }
-       
+
         console.log("liveUrl = " + liveUrl)
         console.log("liveUrlType = " + liveUrlType)
       }).then(() => {
@@ -341,20 +356,39 @@ export default defineComponent({
 
     this.reflushRoomInfo(this.currentPlatformTab, this.currentRoomId, this.currentQn)
 
-    
-    setInterval(() => {
-      if (this.currentPlatformTab === 2) {
-        console.log("huya room info reflush")
-        this.reloadVideoPlayer(this.currentPlatformTab, this.currentRoomId, this.currentQn)
+    // 流状态监控：检测缓冲区是否即将耗尽（对 HLS 和 FLV 都有效）
+    this._refreshing = false
+    this._streamMonitor = setInterval(() => {
+      const player = this.player
+      if (!player || player.paused() || this._refreshing) {
+        return
       }
-    }, 25 * 1000)
+      const buffered = player.buffered()
+      const currentTime = player.currentTime()
+
+      if (buffered.length > 0) {
+        const bufferEnd = buffered.end(buffered.length - 1)
+        const bufferRemaining = bufferEnd - currentTime
+        console.log(bufferRemaining)
+        if (this.currentPlatformTab === 2) {
+          // 缓冲区剩余不足2秒，判定为流失效
+          if (bufferRemaining < 1.2) {
+            console.log('Buffer nearly empty (' + bufferRemaining.toFixed(2) + 's), refreshing stream...')
+            this._refreshing = true
+            this.refreshStreamUrl()
+            setTimeout(() => { this._refreshing = false }, 5000)
+          }
+        }
+
+      }
+    }, 1000)
 
     ipcRenderer.on('change-video-info', (event, args) => {
       console.log('change-video-info')
       if (this.currentPlatformTab !== parseInt(args[1]) || this.currentRoomId !== parseInt(args[2])) {
         this.currentPlatformTab = parseInt(args[1])
         this.currentRoomId = parseInt(args[2])
-        this.$router.push({path: '/video', query: {platform: parseInt(args[1]), room_id: parseInt(args[2])}});
+        this.$router.push({ path: '/video', query: { platform: parseInt(args[1]), room_id: parseInt(args[2]) } });
         console.log(window.location.href)
         console.log(this.player)
         setTimeout(() => {
@@ -398,9 +432,12 @@ export default defineComponent({
   },
   setup(props) {
     const danmus = ref([])
-    return {danmus}
+    return { danmus }
   },
   beforeDestroy() {
+    if (this._streamMonitor) {
+      clearInterval(this._streamMonitor)
+    }
     if (this.player) {
       this.player.dispose();
     }
@@ -490,5 +527,4 @@ export default defineComponent({
   z-index: -1 !important;
   display: none !important;
 }
-
 </style>
