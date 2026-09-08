@@ -1,5 +1,5 @@
 <template>
-  <v-system-bar fixed id="sys-bar" color="grey-darken-3" :class="systemPlatfromClass + ' ' + showStatus">
+  <v-system-bar fixed id="sys-bar" color="grey-darken-3" :class="systemPlatfromClass + ' ' + showStatus" @dblclick="$emit('dblclick')">
     <VideoSystemBtn/>
     <v-spacer></v-spacer>
     <span :class="systemPlatfromClass">{{ roomName }}</span>
@@ -19,6 +19,7 @@ export default defineComponent({
     VideoSystemBtn,
   },
   props: ['platformTab', 'roomName', 'fullScreenStatus'],
+  emits: ['dblclick'],
   methods: {},
   mounted() {
     const self = this

@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div id="video-container" style="border-radius: 5px">
-      <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName" />
+      <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName" @dblclick="toggleFullScreen()" />
       <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku" speeds="100"
         :fontSize="danmuSettings.fontSize">
         <template #danmu="{ danmu }">
@@ -18,7 +18,7 @@
         <v-row align="center" justify="space-around">
           <v-col>
             <v-row align="center" style="width: 120px;margin-left: 0">
-              <v-icon color="white" style="font-size: 20px;margin-top: -13px;">mdi-volume-high</v-icon>
+              <v-icon color="white" style="font-size: 20px;margin-top: -14px; cursor: pointer; width: 30px;" @click="toggleMute()">{{ volumeIcon }}</v-icon>
               <v-slider color="blue" v-model="volume" thumb-color="white" style="margin-top: 7px;"></v-slider>
             </v-row>
           </v-col>
@@ -141,6 +141,17 @@ export default defineComponent({
     // 调整弹幕字体按钮
     toggleFontCtrlBar() {
       this.toggleState('showFontCtrlBar', 'fontSettingBtnColor')
+    },
+    toggleMute() {
+      if (this.previousVolume > 0) {
+        // 恢复音量
+        this.volume = this.previousVolume
+        this.previousVolume = 0
+      } else {
+        // 静音：保存当前音量
+        this.previousVolume = this.volume
+        this.volume = 0
+      }
     },
     async reflushDanmakuInfo(platformTab, roomId) {
       console.log("尝试连接弹幕服务器")
@@ -455,6 +466,12 @@ export default defineComponent({
   computed: {
     fontCtrlBarClass() {
       return this.showFontCtrlBar ? 'show-video-ctrl' : 'hide-video-ctrl'
+    },
+    volumeIcon() {
+      if (this.volume === 0) return 'mdi-volume-mute'
+      if (this.volume <= 33) return 'mdi-volume-low'
+      if (this.volume <= 66) return 'mdi-volume-medium'
+      return 'mdi-volume-high'
     }
   },
   watch: {
@@ -481,6 +498,7 @@ export default defineComponent({
       mousePosition: '',
       barStatus: true,
       volume: 100,
+      previousVolume: 0,  // 静音前的音量值（0 表示未静音）
       player: null,
       playerOptions: null,
       liveUrl: '',
