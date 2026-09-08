@@ -3,6 +3,7 @@
   "version": "2.3.11",
   "private": true,
   "description": "live++",
+  "desktopName": "live++",
   "author": "dipelta <zha_zha@outlook.com>",
   "scripts": {
     "postinstall": "node scripts/install-electron.cjs",
@@ -138,7 +139,10 @@
           ]
         }
       ],
-      "icon": "build/linux/logo_256x256.png"
+      "icon": "build/linux/logo_256x256.png",
+      "artifactName": "live-plus-plus-${version}.${ext}",
+      "executableName": "live-plus-plus",
+      "category": "AudioVideo"
     }
   },
   "license": "MIT"

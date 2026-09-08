@@ -6,7 +6,7 @@
         :fontSize="danmuSettings.fontSize">
         <template #danmu="{ danmu }">
           <span
-            :style="{ color: danmu.color || '#fff', fontWeight: 800, '-webkit-text-stroke': '0.3px #000', opacity: danmuSettings.opacity, fontSize: danmuSettings.fontSize + 'px' }">
+            :style="{ color: danmu.color || '#fff', fontWeight: 800, opacity: danmuSettings.opacity, fontSize: danmuSettings.fontSize + 'px' }">
             {{ danmu.text }}
           </span>
         </template>
@@ -18,7 +18,8 @@
         <v-row align="center" justify="space-around">
           <v-col>
             <v-row align="center" style="width: 120px;margin-left: 0">
-              <v-icon color="white" style="font-size: 20px;margin-top: -14px; cursor: pointer; width: 30px;" @click="toggleMute()">{{ volumeIcon }}</v-icon>
+              <v-icon color="white" style="font-size: 20px;margin-top: -14px; cursor: pointer; width: 30px;"
+                @click="toggleMute()">{{ volumeIcon }}</v-icon>
               <v-slider color="blue" v-model="volume" thumb-color="white" style="margin-top: 7px;"></v-slider>
             </v-row>
           </v-col>
@@ -27,8 +28,9 @@
               style="font-size: 30px;margin-top: -20px" @click="togglePlay()"></v-btn>
           </v-col>
           <v-col style="position: relative;">
-            <v-btn id="fontSettingBtn" :color="fontSettingBtnColor" variant="text" icon="mdi-format-size" flat :ripple="false"
-              style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 0px" @click="toggleFontCtrlBar()"></v-btn>
+            <v-btn id="fontSettingBtn" :color="fontSettingBtnColor" variant="text" icon="mdi-format-size" flat
+              :ripple="false" style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 0px"
+              @click="toggleFontCtrlBar()"></v-btn>
             <div id="font-ctrl-bar" :class="fontCtrlBarClass">
               <v-row align="center" style="padding: 5px 10px;">
                 <v-icon color="white" style="font-size: 14px;">mdi-format-size</v-icon>
@@ -38,9 +40,9 @@
               <v-row align="center" style="padding: 0px 10px; margin-top: -10px;">
                 <v-icon color="white" style="font-size: 14px;">mdi-opacity</v-icon>
                 <v-slider v-model="opacityPercent" :min="0" :max="100" color="blue" thumb-color="white"
-                  style="margin-top: 0px; margin-left: 5px;"hide-details></v-slider>
+                  style="margin-top: 0px; margin-left: 5px;" hide-details></v-slider>
               </v-row>
-              
+
             </div>
             <v-btn :color="danmakuBtnColor" variant="text" icon="mdi-card-bulleted-outline" flat :ripple="false"
               style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 30px" @click="toggleDanmaku()"></v-btn>
@@ -211,6 +213,9 @@ export default defineComponent({
       } else { // 虎牙弹幕
         const chatInfo = await ipcRenderer.invoke('get-huya-chat-info', [roomId])
         huya.connectWs(chatInfo.data, roomId, (danmuMsg, danmuColor) => {
+          if (danmuColor === "#-1") {
+            danmuColor = "#FFF"
+          }
           this.danmuQueue.push({ text: danmuMsg, color: danmuColor })
         }).then((result) => {
           const info = result[0]
