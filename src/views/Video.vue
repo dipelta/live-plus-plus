@@ -2,8 +2,14 @@
   <v-container>
     <div id="video-container" style="border-radius: 5px">
       <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName" />
-      <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku" speeds="100" :extraStyle="extraStyle"
-        fontSize="20">
+      <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku" speeds="100"
+        :fontSize="danmuSettings.fontSize">
+        <template #danmu="{ danmu }">
+          <span
+            :style="{ color: danmu.color || '#fff', fontWeight: 800, '-webkit-text-stroke': '0.3px #000', opacity: danmuSettings.opacity, fontSize: danmuSettings.fontSize + 'px' }">
+            {{ danmu.text }}
+          </span>
+        </template>
       </vue-danmaku>
       <div ref="videoPlayer" style="height:100%; width:100%; border-radius: 5px">
         <video id="live-player" class="video-js" style="border-radius: 5px"></video>
@@ -11,8 +17,8 @@
       <v-container id="video-ctrl-bar" style="text-align: center" :class="videoShowClass">
         <v-row align="center" justify="space-around">
           <v-col>
-            <v-row align="center" style="width: 90px;margin-left: 0">
-              <v-icon color="white" style="font-size: 20px;margin-top: -15px;">mdi-volume-high</v-icon>
+            <v-row align="center" style="width: 120px;margin-left: 0">
+              <v-icon color="white" style="font-size: 20px;margin-top: -13px;">mdi-volume-high</v-icon>
               <v-slider color="blue" v-model="volume" thumb-color="white" style="margin-top: 7px;"></v-slider>
             </v-row>
           </v-col>
@@ -20,7 +26,22 @@
             <v-btn color="white" variant="text" :icon="videoPlayIcon" flat :ripple="false"
               style="font-size: 30px;margin-top: -20px" @click="togglePlay()"></v-btn>
           </v-col>
-          <v-col>
+          <v-col style="position: relative;">
+            <v-btn id="fontSettingBtn" :color="fontSettingBtnColor" variant="text" icon="mdi-format-size" flat :ripple="false"
+              style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 0px" @click="toggleFontCtrlBar()"></v-btn>
+            <div id="font-ctrl-bar" :class="fontCtrlBarClass">
+              <v-row align="center" style="padding: 5px 10px;">
+                <v-icon color="white" style="font-size: 14px;">mdi-format-size</v-icon>
+                <v-slider v-model="fontSizePercent" :min="50" :max="150" color="blue" thumb-color="white"
+                  style="margin-top: 0px; margin-left: 5px;" hide-details></v-slider>
+              </v-row>
+              <v-row align="center" style="padding: 0px 10px; margin-top: -10px;">
+                <v-icon color="white" style="font-size: 14px;">mdi-opacity</v-icon>
+                <v-slider v-model="opacityPercent" :min="0" :max="100" color="blue" thumb-color="white"
+                  style="margin-top: 0px; margin-left: 5px;"hide-details></v-slider>
+              </v-row>
+              
+            </div>
             <v-btn :color="danmakuBtnColor" variant="text" icon="mdi-card-bulleted-outline" flat :ripple="false"
               style="width:20px;font-size: 14px;margin-top: -16px;margin-left: 30px" @click="toggleDanmaku()"></v-btn>
             <v-btn :color="fullScreenColor" variant="text" icon="mdi-fullscreen" flat :ripple="false"
@@ -55,8 +76,11 @@ import huya from "../../src/plugins/danmaku/huya";
 import videojs from 'video.js';
 import { ipcRenderer } from "electron";
 import 'videojs-flvjs-es6'
-import vueDanmaku from 'vue3-danmaku'
+import vueDanmaku from 'vue-danmaku'
 import tool from "../plugins/tool";
+
+const BTN_COLOR_ACTIVE = 'deep-orange-lighten-2'
+const BTN_COLOR_DEFAULT = 'white'
 
 export default defineComponent({
   name: "Video",
@@ -88,39 +112,35 @@ export default defineComponent({
         this.player.pause()
       }
     },
+    toggleState(stateKey, colorKey) {
+      this[colorKey] = this[stateKey] ? BTN_COLOR_DEFAULT : BTN_COLOR_ACTIVE
+      this[stateKey] = !this[stateKey]
+    },
+    // 显示弹幕按钮
     toggleDanmaku() {
+      this.toggleState('showDanmaku', 'danmakuBtnColor')
       if (this.showDanmaku) {
-        // 隐藏弹幕
-        this.$refs.danmakuRef.hide()
-        this.danmakuBtnColor = "white"
-        sessionStorage.setItem('auto_show_danmaku', "0")
-      } else {
-        // 显示弹幕
         this.$refs.danmakuRef.show()
-        this.danmakuBtnColor = "deep-orange-lighten-2"
         sessionStorage.setItem('auto_show_danmaku', "1")
-      }
-      this.showDanmaku = !this.showDanmaku
-    },
-    toggleFullScreen() {
-      const playerLive = document.querySelector('#app');
-      if (this.fullScreenStatus) {
-        document.webkitCancelFullScreen()
-        this.fullScreenColor = "white"
       } else {
-        playerLive.webkitRequestFullScreen()
-        this.fullScreenColor = "deep-orange-lighten-2"
+        this.$refs.danmakuRef.hide()
+        sessionStorage.setItem('auto_show_danmaku', "0")
       }
-      this.fullScreenStatus = !this.fullScreenStatus
-      setTimeout(() => {
-        this.$refs.danmakuRef.resize()
-      }, 300)
     },
-    async makeDanmakuColorStyle(color) {
-      this.extraStyle = "color: " + color + ";font-weight:800;-webkit-text-stroke: 0.3px #000;"
+    // 全屏按钮
+    toggleFullScreen() {
+      this.toggleState('fullScreenStatus', 'fullScreenColor')
+      const playerLive = document.querySelector('#app')
+      if (this.fullScreenStatus) {
+        playerLive.webkitRequestFullScreen()
+      } else {
+        document.webkitCancelFullScreen()
+      }
+      setTimeout(() => { this.$refs.danmakuRef.resize() }, 300)
     },
-    makeDefaultDanmakuColorStyle() {
-      this.extraStyle = "color: #fff;font-weight:800;-webkit-text-stroke: 0.3px #000;"
+    // 调整弹幕字体按钮
+    toggleFontCtrlBar() {
+      this.toggleState('showFontCtrlBar', 'fontSettingBtnColor')
     },
     async reflushDanmakuInfo(platformTab, roomId) {
       console.log("尝试连接弹幕服务器")
@@ -144,22 +164,15 @@ export default defineComponent({
       }
       this.danmuTask = setInterval(() => {
         if (this.danmuQueue.length > 0) {
-          let first = this.danmuQueue[0]
-          this.danmuQueue.shift()
-          if (first.length === 1) {
-            this.$refs.danmakuRef.insert(first[0])
-          }
-          if (first.length === 2) {
-            this.makeDanmakuColorStyle(first[1]).then(() => {
-              this.$refs.danmakuRef.insert(first[0])
-            })
-          }
+          const danmu = this.danmuQueue.shift()
+          this.$refs.danmakuRef.insert(danmu)
         }
       }, 10)
 
+
       if (platformTab === 0) { // 斗鱼弹幕
         this.danmuWebsocket = douyu.connectWs(roomId, (danmuMsg, danmuColor) => {
-          this.danmuQueue.push([danmuMsg, danmuColor])
+          this.danmuQueue.push({ text: danmuMsg, color: danmuColor })
         })
         // 重置心跳
         this.heartbeat = setInterval(() => {
@@ -171,7 +184,7 @@ export default defineComponent({
         let token = ""
         bilibili.connectWs(roomId, (danmuMsg, danmuColor, bilibiliToken) => {
           // 将弹幕信息发送到队列中
-          this.danmuQueue.push([danmuMsg, danmuColor])
+          this.danmuQueue.push({ text: danmuMsg, color: danmuColor })
           token = bilibiliToken
         }).then((ws) => {
           this.danmuWebsocket = ws
@@ -187,8 +200,7 @@ export default defineComponent({
       } else { // 虎牙弹幕
         const chatInfo = await ipcRenderer.invoke('get-huya-chat-info', [roomId])
         huya.connectWs(chatInfo.data, roomId, (danmuMsg, danmuColor) => {
-          // this.$refs.danmakuRef.insert(content)
-          this.danmuQueue.push([danmuMsg, danmuColor])
+          this.danmuQueue.push({ text: danmuMsg, color: danmuColor })
         }).then((result) => {
           const info = result[0]
           const main_user_id = result[1]
@@ -330,7 +342,6 @@ export default defineComponent({
       self.toggleDanmaku()
     })
 
-    this.makeDefaultDanmakuColorStyle()
     this.playerOptions = {
       bigPlayButton: false,
       textTrackDisplay: false,
@@ -369,7 +380,6 @@ export default defineComponent({
       if (buffered.length > 0) {
         const bufferEnd = buffered.end(buffered.length - 1)
         const bufferRemaining = bufferEnd - currentTime
-        console.log(bufferRemaining)
         if (this.currentPlatformTab === 2) {
           // 缓冲区剩余不足2秒，判定为流失效
           if (bufferRemaining < 1.2) {
@@ -442,9 +452,20 @@ export default defineComponent({
       this.player.dispose();
     }
   },
+  computed: {
+    fontCtrlBarClass() {
+      return this.showFontCtrlBar ? 'show-video-ctrl' : 'hide-video-ctrl'
+    }
+  },
   watch: {
     "volume"(newVal, oldVal) {
       this.player.volume(newVal / 100)
+    },
+    fontSizePercent(newVal) {
+      this.danmuSettings.fontSize = 20 * (newVal / 100)
+    },
+    opacityPercent(newVal) {
+      this.danmuSettings.opacity = newVal / 100
     }
   },
   data() {
@@ -466,7 +487,14 @@ export default defineComponent({
       roomName: 'Live++',
       danmuWebsocket: null, // 各平台弹幕ws
       heartbeat: null, // 弹幕心跳
-      extraStyle: "",
+      danmuSettings: {
+        fontSize: 20,    // 弹幕字体大小（px）
+        opacity: 1,      // 弹幕不透明度（0-1）
+      },
+      fontSettingBtnColor: 'white',    // 字体设置按钮颜色
+      showFontCtrlBar: false,          // 是否显示字体控制栏
+      fontSizePercent: 100,            // 字体大小百分比（50-150）
+      opacityPercent: 100,             // 透明度百分比（0-100）
       videoShowClass: "show-video-ctrl",
       videoPlayIcon: "mdi-pause",
       showDanmaku: true,
@@ -498,14 +526,27 @@ export default defineComponent({
 
 #video-ctrl-bar {
   position: absolute;
-  width: 350px;
+  width: 420px;
   height: 50px;
   border-radius: 10px;
   z-index: 2;
   background: rgba(66, 66, 66, 0.9);
   left: 50%;
-  margin-left: -175px;
+  margin-left: -210px;
   top: 75%;
+}
+
+#font-ctrl-bar {
+  position: absolute;
+  width: 150px;
+  padding: 15px 10px;
+  border-radius: 10px;
+  z-index: 10;
+  background: rgba(66, 66, 66, 0.9);
+  left: 15%;
+  transform: translateX(-50%);
+  bottom: 100%;
+  margin-bottom: 20px;
 }
 
 #video-switch-qn-bar {
