@@ -26,7 +26,14 @@ function getMirrorUrl() {
 }
 
 function clearCache() {
-  const cacheDir = path.join(process.env.LOCALAPPDATA || '', 'electron', 'Cache');
+  let cacheDir;
+  if (process.platform === 'win32') {
+    cacheDir = path.join(process.env.LOCALAPPDATA || '', 'electron', 'Cache');
+  } else if (process.platform === 'darwin') {
+    cacheDir = path.join(process.env.HOME || '', 'Library', 'Caches', 'electron');
+  } else {
+    cacheDir = path.join(process.env.HOME || '', '.cache', 'electron');
+  }
   if (fs.existsSync(cacheDir)) {
     try {
       fs.rmSync(cacheDir, { recursive: true, force: true });
@@ -87,10 +94,17 @@ function main() {
   }
 
   try {
-    execSync(
-      `powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${distDir}' -Force"`,
-      { stdio: 'inherit', timeout: 120000 }
-    );
+    if (process.platform === 'win32') {
+      execSync(
+        `powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${distDir}' -Force"`,
+        { stdio: 'inherit', timeout: 120000 }
+      );
+    } else {
+      execSync(
+        `unzip -o "${zipPath}" -d "${distDir}"`,
+        { stdio: 'inherit', timeout: 120000 }
+      );
+    }
   } catch (err) {
     console.error('[install-electron] Extract failed:', err.message);
     process.exit(1);
