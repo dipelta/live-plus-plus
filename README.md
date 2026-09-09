@@ -28,7 +28,7 @@ Live++ 是一款基于 Electron 的跨平台桌面直播客户端，支持 **斗
 
 ## 下载安装
 
-前往 [Releases](https://github.com/user/live-plus-plus/releases) 页面下载对应平台的安装包：
+前往 [Releases](https://github.com/dipelta/live-plus-plus/releases) 页面下载对应平台的安装包：
 
 | 平台 | 格式 |
 |---|---|
