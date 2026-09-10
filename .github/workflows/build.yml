@@ -27,6 +27,7 @@ jobs:
           path: |
             build_electron/*.exe
             build_electron/*.zip
+            build_electron/latest.yml
 
   build-linux:
     runs-on: ubuntu-latest
@@ -48,6 +49,7 @@ jobs:
           path: |
             build_electron/*.AppImage
             build_electron/*.zip
+            build_electron/latest-linux.yml
 
   build-mac-x64:
     runs-on: macos-14
@@ -69,6 +71,7 @@ jobs:
           path: |
             build_electron/*.dmg
             build_electron/*.zip
+            build_electron/latest-mac.yml
 
   build-mac-arm64:
     runs-on: macos-14
@@ -90,6 +93,7 @@ jobs:
           path: |
             build_electron/*.dmg
             build_electron/*.zip
+            build_electron/latest-mac.yml
 
   release:
     needs: [build-windows, build-linux, build-mac-x64, build-mac-arm64]
