@@ -1,0 +1,115 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm install
+
+      - run: npx vite build && npx electron-builder -w --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            build_electron/*.exe
+            build_electron/*.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm install
+
+      - run: npx vite build && npx electron-builder -l --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            build_electron/*.AppImage
+            build_electron/*.zip
+
+  build-mac-x64:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm install
+
+      - run: npx vite build && npx electron-builder -m --x64 --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-x64-build
+          path: |
+            build_electron/*.dmg
+            build_electron/*.zip
+
+  build-mac-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm install
+
+      - run: npx vite build && npx electron-builder -m --arm64 --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-arm64-build
+          path: |
+            build_electron/*.dmg
+            build_electron/*.zip
+
+  release:
+    needs: [build-windows, build-linux, build-mac-x64, build-mac-arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/windows-build/*
+            artifacts/linux-build/*
+            artifacts/mac-x64-build/*
+            artifacts/mac-arm64-build/*
+          generate_release_notes: true
