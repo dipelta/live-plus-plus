@@ -51,7 +51,7 @@ jobs:
             build_electron/*.zip
             build_electron/latest-linux.yml
 
-  build-mac-x64:
+  build-mac:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -63,40 +63,18 @@ jobs:
 
       - run: npm install
 
-      - run: npx vite build && npx electron-builder -m --x64 --publish never
+      - run: npx vite build && npx electron-builder -m --x64 --arm64 --publish never
 
       - uses: actions/upload-artifact@v4
         with:
-          name: mac-x64-build
-          path: |
-            build_electron/*.dmg
-            build_electron/*.zip
-            build_electron/latest-mac.yml
-
-  build-mac-arm64:
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm install
-
-      - run: npx vite build && npx electron-builder -m --arm64 --publish never
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mac-arm64-build
+          name: mac-build
           path: |
             build_electron/*.dmg
             build_electron/*.zip
             build_electron/latest-mac.yml
 
   release:
-    needs: [build-windows, build-linux, build-mac-x64, build-mac-arm64]
+    needs: [build-windows, build-linux, build-mac]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -114,6 +92,5 @@ jobs:
           files: |
             artifacts/windows-build/*
             artifacts/linux-build/*
-            artifacts/mac-x64-build/*
-            artifacts/mac-arm64-build/*
+            artifacts/mac-build/*
           generate_release_notes: true
