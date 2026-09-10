@@ -26,7 +26,6 @@ release
 *.sw?
 
 # lockfile
-package-lock.json
 pnpm-lock.yaml
 yarn.lock
 #Electron-builder output
