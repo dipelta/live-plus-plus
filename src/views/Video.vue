@@ -2,7 +2,7 @@
   <v-container>
     <div id="video-container" style="border-radius: 5px">
       <VideoSystemBar :fullScreenStatus="fullScreenStatus" :roomName="roomName" @dblclick="toggleFullScreen()" />
-      <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku" speeds="100"
+      <vue-danmaku v-model:danmus="danmus" ref="danmakuRef" id="live-danmaku" speeds="100" :autoResize="false"
         :fontSize="danmuSettings.fontSize">
         <template #danmu="{ danmu }">
           <span
@@ -180,7 +180,7 @@ export default defineComponent({
           const danmu = this.danmuQueue.shift()
           this.$refs.danmakuRef.insert(danmu)
         }
-      }, 10)
+      }, 50)
 
 
       if (platformTab === 0) { // 斗鱼弹幕
@@ -450,9 +450,9 @@ export default defineComponent({
     })
     // 改变窗口大小后要重新加载弹幕的弹道
     ipcRenderer.on('video-window-resize', (event, args) => {
-      setTimeout(() => {
-        self.$refs.danmakuRef.resize()
-      }, 300)
+      // setTimeout(() => {
+      //   self.$refs.danmakuRef.resize()
+      // }, 300)
     })
 
   },
