@@ -41,7 +41,7 @@
     "@types/uuid": "^9.0.1",
     "@types/webfontloader": "^1.0.0",
     "@vitejs/plugin-vue": "^4.6.2",
-    "electron": "^42.11.1",
+    "electron": "^42.11.18",
     "electron-builder": "^26.16.0",
     "electron-devtools-installer": "^3.2.1",
     "electron-log": "^4.4.8",
